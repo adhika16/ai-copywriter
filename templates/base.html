@@ -1,0 +1,68 @@
+{% load static %}
+{% load tailwind_tags %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Copywriter - Ekonomi Kreatif Indonesia</title>
+    {% tailwind_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/dist/styles.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Clean Navigation -->
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'home' %}" class="text-xl font-bold text-gray-900 hover:text-gray-700 transition-colors">
+                        AI Copywriter
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-gray-600">{{ user.username }}</span>
+                            <form action="{% url 'logout' %}" method="post" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                                    Logout
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="flex items-center space-x-4">
+                            <a href="{% url 'login' %}" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                                Login
+                            </a>
+                            <a href="{% url 'signup' %}" class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors">
+                                Sign Up
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Clean Footer -->
+    <footer class="bg-gray-50 border-t border-gray-200 mt-0">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p class="text-gray-500 text-sm">© 2025 AI Copywriter. Ekonomi Kreatif Indonesia.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

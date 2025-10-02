@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gray-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6">
+                <span class="hover:italic">Lightning Fast</span>,<br>
+                <span class="text-orange-400">AI-Powered</span> Copywriting
+            </h1>
+            <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                Create compelling marketing content for Indonesia's creative economy with AI that understands local culture and language.
+            </p>
+            
+            {% if user.is_authenticated %}
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="#" class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-8 rounded-md transition-colors">
+                        Create Content
+                    </a>
+                    <a href="#" class="border border-gray-600 text-white hover:border-gray-400 font-medium py-3 px-8 rounded-md transition-colors">
+                        View Templates
+                    </a>
+                </div>
+            {% else %}
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{% url 'signup' %}" class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-8 rounded-md transition-colors">
+                        Get Started Free
+                    </a>
+                    <a href="{% url 'login' %}" class="border border-gray-600 text-white hover:border-gray-400 font-medium py-3 px-8 rounded-md transition-colors">
+                        Sign In
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section (MVP Placeholder) -->
+<div class="bg-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+                <div class="text-3xl font-bold text-gray-900">Coming Soon</div>
+                <div class="text-sm text-gray-600 uppercase tracking-wider">Content Templates</div>
+            </div>
+            <div>
+                <div class="text-3xl font-bold text-gray-900">Coming Soon</div>
+                <div class="text-sm text-gray-600 uppercase tracking-wider">Contents Generated</div>
+            </div>
+            <div>
+                <div class="text-3xl font-bold text-gray-900">Coming Soon</div>
+                <div class="text-sm text-gray-600 uppercase tracking-wider">Uptime</div>
+            </div>
+        </div>
+        <div class="mt-6 text-center text-gray-400 text-xs">
+            * Real stats will be displayed after launch
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="bg-gray-50 py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                Meticulously Engineered For<br>Performance & Ease-Of-Use
+            </h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                AI copywriting designed specifically for Indonesian businesses, with built-in understanding of local culture and market preferences.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature Cards -->
+            <div class="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Lightning Fast</h3>
+                <p class="text-gray-600 text-sm">Generate high-quality content in seconds with our optimized AI models.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Indonesian-First</h3>
+                <p class="text-gray-600 text-sm">Built for Indonesian market with cultural nuances and local language understanding.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Customizable</h3>
+                <p class="text-gray-600 text-sm">Tailor tone, style, and messaging to match your brand voice perfectly.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Multi-Platform</h3>
+                <p class="text-gray-600 text-sm">Create content for social media, emails, websites, and more from one platform.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Content Library</h3>
+                <p class="text-gray-600 text-sm">Save, organize, and reuse your best-performing content templates.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Built for Indonesia</h3>
+                <p class="text-gray-600 text-sm">Supporting creative economy growth with AI-powered content creation tools.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="bg-white py-20">
+    <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            Ready to Transform Your Content Strategy?
+        </h2>
+        <p class="text-lg text-gray-600 mb-8">
+            Join thousands of Indonesian businesses already using AI to create compelling content that converts.
+        </p>
+        
+        {% if not user.is_authenticated %}
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'signup' %}" class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-8 rounded-md transition-colors">
+                    Start Free Trial
+                </a>
+                <a href="#" class="border border-gray-300 text-gray-700 hover:border-gray-400 font-medium py-3 px-8 rounded-md transition-colors">
+                    Watch Demo
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<!-- User Dashboard -->
+<div class="bg-gray-50 py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Welcome back, {{ user.username }}!</h2>
+            <p class="text-lg text-gray-600">What would you like to create today?</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">New Content</h3>
+                    <p class="text-sm text-gray-600">Create fresh content with AI assistance</p>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">My Content</h3>
+                    <p class="text-sm text-gray-600">View and manage saved content</p>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Templates</h3>
+                    <p class="text-sm text-gray-600">Browse content templates</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
