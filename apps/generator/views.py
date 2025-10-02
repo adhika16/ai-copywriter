@@ -93,7 +93,8 @@ def product_description_generator(request):
             length=length,
             tone=tone,
             model_type=model_type,
-            variations=variations
+            variations=variations,
+            user=request.user
         )
         
         if request.content_type == 'application/json':

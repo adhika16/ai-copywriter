@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'apps.accounts.apps.AccountsConfig',
     'apps.generator.apps.GeneratorConfig',
     'apps.content.apps.ContentConfig',
+    'admin_panel.apps.AdminPanelConfig',
     'tailwind',
     'theme',
     'django_browser_reload',
@@ -65,6 +66,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'admin_panel.middleware.AIFeatureMiddleware',
     "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 

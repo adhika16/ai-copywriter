@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}AI Features Disabled - AI Copywriter{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h2 class="mt-6 text-2xl font-bold text-gray-900">AI Features Disabled</h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    AI content generation features are currently disabled by the administrator.
+                </p>
+                <p class="mt-4 text-sm text-gray-500">
+                    Please contact the system administrator or try again later.
+                </p>
+                <div class="mt-6">
+                    <a href="/" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+                        Return to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -37,7 +37,8 @@ class ContentGenerationService:
                                    length: str = "medium",
                                    tone: str = "professional",
                                    model_type: str = "fast",
-                                   variations: int = 1) -> Dict[str, Any]:
+                                   variations: int = 1,
+                                   user=None) -> Dict[str, Any]:
         """
         Generate product description content
         
@@ -71,7 +72,8 @@ class ContentGenerationService:
                     prompt=prompt,
                     model_type=model_type,
                     max_tokens=self._get_max_tokens(length),
-                    use_cache=True
+                    use_cache=True,
+                    user=user
                 )
                 
                 # Add cost estimation

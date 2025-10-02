@@ -19,6 +19,8 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            if user.is_superuser:
+                return redirect('admin_panel:dashboard')
             return redirect('generator:dashboard')
     else:
         form = AuthenticationForm()

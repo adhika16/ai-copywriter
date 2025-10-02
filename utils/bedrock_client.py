@@ -118,7 +118,8 @@ class BedrockClient:
                         model_type: str = "fast", 
                         max_tokens: int = 1000,
                         use_cache: bool = True,
-                        max_retries: int = 3) -> Dict[str, Any]:
+                        max_retries: int = 3,
+                        user=None) -> Dict[str, Any]:
         """
         Generate content using AWS Bedrock with error handling and caching
         
@@ -128,6 +129,7 @@ class BedrockClient:
             max_tokens: Maximum tokens to generate
             use_cache: Whether to use caching
             max_retries: Maximum retry attempts
+            user: User making the request (for tracking)
             
         Returns:
             Dict containing generated text and metadata
@@ -158,6 +160,7 @@ class BedrockClient:
                 )
                 
                 response_time = time.time() - start_time
+                response_time_ms = int(response_time * 1000)
                 response_body = json.loads(response['body'].read())
                 
                 # Parse the response
@@ -166,13 +169,34 @@ class BedrockClient:
                 if not generated_text:
                     raise BedrockClientError("Empty response from model")
                 
+                # Calculate tokens (approximate)
+                prompt_tokens = len(prompt.split())
+                generated_tokens = len(generated_text.split())
+                total_tokens = prompt_tokens + generated_tokens
+                
+                # Track successful usage
+                try:
+                    from admin_panel.utils import track_model_usage
+                    track_model_usage(
+                        model_name=model_id,
+                        success=True,
+                        response_time_ms=response_time_ms,
+                        tokens_used=total_tokens,
+                        user=user
+                    )
+                except ImportError:
+                    # admin_panel might not be available in all contexts
+                    pass
+                
                 result = {
                     'text': generated_text,
                     'model_id': model_id,
                     'model_type': model_type,
                     'response_time': response_time,
-                    'prompt_tokens': len(prompt.split()),
-                    'generated_tokens': len(generated_text.split()),
+                    'response_time_ms': response_time_ms,
+                    'prompt_tokens': prompt_tokens,
+                    'generated_tokens': generated_tokens,
+                    'total_tokens': total_tokens,
                     'cached': False,
                     'attempt': attempt + 1
                 }
@@ -206,6 +230,18 @@ class BedrockClient:
                 if attempt < max_retries - 1:
                     time.sleep(1)  # Short wait before retry
                     continue
+        
+        # Track failed usage
+        try:
+            from admin_panel.utils import track_model_usage
+            track_model_usage(
+                model_name=model_id,
+                success=False,
+                error_message=last_error,
+                user=user
+            )
+        except ImportError:
+            pass
         
         # All retries failed
         error_msg = f"Failed to generate content after {max_retries} attempts. Last error: {last_error}"

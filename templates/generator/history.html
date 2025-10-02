@@ -2,7 +2,7 @@
 
 {% block content %}
 {% csrf_token %}
-<div class="min-h-screen bg-gray-50 py-8">
+<div class="min-h-screen bg-white py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
             <div class="flex items-center space-x-4">
@@ -14,13 +14,13 @@
             </div>
             <div class="flex space-x-4">
                 <button onclick="exportSelected()" 
-                        class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors w-full sm:w-auto justify-center">
-                    <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                        class="inline-flex items-center bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors w-full sm:w-auto justify-center">
+                    <i data-lucide="download" class="w-4 h-4 mr-2 text-gray-300"></i>
                     Export Selected
                 </button>
                 <button onclick="copyAllSelected()" 
-                        class="inline-flex items-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors w-full sm:w-auto justify-center">
-                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
+                        class="inline-flex items-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors w-full sm:w-auto justify-center">
+                    <i data-lucide="copy" class="w-4 h-4 mr-2 text-orange-100"></i>
                     Copy All
                 </button>
             </div>
@@ -32,7 +32,7 @@
             <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Content Type</label>
-                    <select name="content_type" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+                    <select name="content_type" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All Types</option>
                         {% for type in content_types %}
                             <option value="{{ type.name }}" {% if current_filters.content_type == type.name %}selected{% endif %}>
@@ -43,7 +43,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Platform</label>
-                    <select name="platform" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+                    <select name="platform" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All Platforms</option>
                         <option value="instagram" {% if current_filters.platform == 'instagram' %}selected{% endif %}>Instagram</option>
                         <option value="facebook" {% if current_filters.platform == 'facebook' %}selected{% endif %}>Facebook</option>
@@ -58,7 +58,7 @@
                        class="w-full border border-gray-300 rounded-md px-3 py-2">
             </div>
             <div class="flex flex-col sm:flex-row sm:items-end gap-4">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md w-full sm:w-auto">
+                <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md w-full sm:w-auto">
                     Apply Filters
                 </button>
                 <a href="{% url 'generator:history' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md w-full sm:w-auto text-center">
@@ -122,11 +122,11 @@
                                 <div class="flex-shrink-0 flex flex-col sm:flex-row sm:items-center gap-2">
                                     <a href="{% url 'generator:content_detail' item.id %}" 
                                        class="inline-flex items-center justify-center bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-1 rounded-md text-sm">
-                                        <i data-lucide="eye" class="w-4 h-4 mr-2"></i>View
+                                        <i data-lucide="eye" class="w-4 h-4 mr-2 text-gray-500"></i>View
                                     </a>
                                     <button onclick="copyContent(`{{ item.generated_text|escapejs }}`)" 
-                                            class="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm">
-                                        <i data-lucide="copy" class="w-4 h-4 mr-2"></i>Copy
+                                            class="inline-flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-md text-sm">
+                                        <i data-lucide="copy" class="w-4 h-4 mr-2 text-orange-100"></i>Copy
                                     </button>
                                     <button onclick="toggleFavorite({{ item.id }})" 
                                             class="inline-flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full">
@@ -162,7 +162,7 @@
                             </a>
                         {% endif %}
                         
-                        <span class="px-3 py-1 bg-blue-500 text-white rounded">
+                        <span class="px-3 py-1 bg-orange-500 text-white rounded">
                             {{ page_obj.number }}
                         </span>
                         
@@ -178,12 +178,15 @@
             {% endif %}
         {% else %}
             <div class="p-12 text-center">
-                <div class="text-6xl mb-4">📝</div>
+                <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="file-text" class="w-8 h-8 text-gray-400"></i>
+                </div>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">No content found</h3>
                 <p class="text-gray-500 mb-4">You haven't generated any content yet or no content matches your filters.</p>
                 <a href="{% url 'generator:dashboard' %}" 
-                   class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded inline-flex items-center">
-                    ✨ Generate Content
+                   class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded inline-flex items-center">
+                    <i data-lucide="plus" class="w-4 h-4 mr-2 text-orange-100"></i>
+                    Generate Content
                 </a>
             </div>
         {% endif %}
@@ -306,12 +309,14 @@ function showNotification(message, type = 'info') {
     
     // Animate in
     setTimeout(() => {
-        notification.style.transform = 'translateX(0)';
+        notification.classList.remove('translate-x-full');
+        notification.classList.add('translate-x-0');
     }, 100);
     
     // Animate out and remove
     setTimeout(() => {
-        notification.style.transform = 'translateX(full)';
+        notification.classList.remove('translate-x-0');
+        notification.classList.add('translate-x-full');
         setTimeout(() => {
             notification.remove();
         }, 300);

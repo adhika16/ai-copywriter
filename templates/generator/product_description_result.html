@@ -1,22 +1,22 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-8">
+<div class="min-h-screen bg-white py-8">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div class="mb-4 sm:mb-0">
-                    <h1 class="text-3xl font-bold text-gray-900">Generated Product Description</h1>
-                    <p class="text-gray-600 mt-2">{{ product_info.name }}</p>
+                    <h1 class="text-3xl font-semibold text-gray-800 tracking-tight">Generated Product Description</h1>
+                    <p class="text-gray-500 mt-2">{{ product_info.name }}</p>
                 </div>
                 <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
-                    <a href="{% url 'generator:product_description' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <a href="{% url 'generator:product_description' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-md text-gray-600 bg-white hover:bg-gray-100">
                         <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
                         Generate Again
                     </a>
                     <a href="{% url 'generator:dashboard' %}" class="w-full sm:w-auto inline-flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                        <i data-lucide="home" class="w-4 h-4 mr-2"></i>
+                        <i data-lucide="home" class="w-4 h-4 mr-2 text-orange-100"></i>
                         Dashboard
                     </a>
                 </div>
@@ -24,13 +24,13 @@
         </div>
 
         <!-- Generation Info -->
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="bg-gray-50 border border-gray-100 rounded-lg p-4 mb-6">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+                    <i data-lucide="info" class="w-5 h-5 text-gray-400"></i>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm text-blue-700">
+                    <p class="text-sm text-gray-700">
                         <strong>Generation Parameters:</strong> 
                         {{ result.parameters.tone|title }} tone, 
                         {{ result.parameters.length }} length, 
@@ -43,9 +43,9 @@
 
         <!-- Generated Content -->
         {% for content in result.content %}
-        <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+    <div class="bg-white border border-gray-100 rounded-lg p-6 mb-6">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold text-gray-900">
+                <h2 class="text-lg font-semibold text-gray-800">
                     {% if result.parameters.variations > 1 %}
                         Variation {{ content.variation_number|default:forloop.counter }}
                     {% else %}
@@ -54,24 +54,24 @@
                 </h2>
                 <div class="flex space-x-2">
                     <button onclick="copyToClipboard('content-{{ forloop.counter }}')" 
-                            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
-                        📋 Copy
+                            class="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded text-sm hover:bg-gray-100">
+                        <i data-lucide="copy" class="w-4 h-4 mr-1"></i>Copy
                     </button>
                     <button onclick="analyzeContent('{{ content.text|escapejs }}')" 
-                            class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm">
-                        📊 Analyze
+                            class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4 mr-1 text-orange-100"></i>Analyze
                     </button>
                 </div>
             </div>
             
             <div id="content-{{ forloop.counter }}" class="prose max-w-none">
-                <div class="bg-gray-50 p-4 rounded-md border">
+                <div class="bg-gray-50 p-4 rounded-md border border-gray-100">
                     {{ content.text|linebreaks }}
                 </div>
             </div>
             
             <!-- Content Stats -->
-            <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
+            <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-gray-500">
                 <div>
                     <strong>Words:</strong> {{ content.generated_tokens }}
                 </div>
@@ -89,26 +89,26 @@
         {% endfor %}
 
         <!-- Analysis Results (Hidden initially) -->
-        <div id="analysis-results" class="hidden bg-white shadow rounded-lg p-6 mb-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">Content Analysis</h3>
+        <div id="analysis-results" class="hidden bg-white border border-gray-100 rounded-lg p-6 mb-6">
+            <h3 class="text-base font-semibold text-gray-800 mb-4">Content Analysis</h3>
             <div id="analysis-content"></div>
         </div>
 
         <!-- Actions -->
-        <div class="bg-white shadow rounded-lg p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">What's Next?</h3>
+        <div class="bg-white border border-gray-100 rounded-lg p-6">
+            <h3 class="text-base font-semibold text-gray-800 mb-4">What's Next?</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <a href="{% url 'generator:social_media' %}" 
-                   class="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg text-center">
-                    📱 Create Social Media Caption
+                   class="bg-white border border-gray-200 text-gray-600 px-4 py-3 rounded-lg text-center hover:bg-gray-100">
+                    <i data-lucide="instagram" class="w-4 h-4 mr-1 inline"></i> Create Social Media Caption
                 </a>
                 <a href="{% url 'generator:headlines' %}" 
-                   class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg text-center">
-                    📝 Generate Headlines
+                   class="bg-white border border-gray-200 text-gray-600 px-4 py-3 rounded-lg text-center hover:bg-gray-100">
+                    <i data-lucide="type" class="w-4 h-4 mr-1 inline"></i> Generate Headlines
                 </a>
                 <a href="{% url 'generator:history' %}" 
-                   class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-lg text-center">
-                    📚 View History
+                   class="bg-white border border-gray-200 text-gray-600 px-4 py-3 rounded-lg text-center hover:bg-gray-100">
+                    <i data-lucide="book-open" class="w-4 h-4 mr-1 inline"></i> View History
                 </a>
             </div>
         </div>

@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Superadmin Dashboard - AI Copywriter{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Superadmin Dashboard</h1>
+                    <p class="text-sm text-gray-600">Manage AI Copywriter system settings and monitoring</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="/admin/" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        Django Admin
+                    </a>
+                    <button id="testConnectionBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Test Bedrock Connection
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Status Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- AI Features Status -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-{% if ai_settings.ai_enabled %}green{% else %}red{% endif %}-500 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {% if ai_settings.ai_enabled %}
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    {% else %}
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    {% endif %}
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">AI Features</dt>
+                                <dd class="text-lg font-medium text-gray-900">
+                                    {% if ai_settings.ai_enabled %}Enabled{% else %}Disabled{% endif %}
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="ml-5">
+                            <button id="toggleAIBtn" class="bg-{% if ai_settings.ai_enabled %}red{% else %}green{% endif %}-500 hover:bg-{% if ai_settings.ai_enabled %}red{% else %}green{% endif %}-700 text-white font-bold py-1 px-3 rounded text-sm">
+                                {% if ai_settings.ai_enabled %}Disable{% else %}Enable{% endif %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Requests -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Requests (7 days)</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ total_requests|default:0 }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Rate -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Success Rate</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ success_rate|floatformat:1 }}%</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Count -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Errors (7 days)</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ total_errors|default:0 }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Usage Trends Chart -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Usage Trends (Last 30 Days)</h3>
+                    <div class="h-64">
+                        <canvas id="usageLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Usage Distribution -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Model Usage Distribution</h3>
+                    <div class="h-64">
+                        <canvas id="modelPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Status & Recent Logs -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Connection Status -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Bedrock Connection Status</h3>
+                    <div id="connectionStatus" class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Last Test:</span>
+                            <span class="text-sm text-gray-900">Click "Test Connection" to check</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Connection Logs -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Recent Connection Logs</h3>
+                    <div class="overflow-y-auto max-h-64">
+                        {% for log in recent_logs %}
+                        <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 rounded-full {% if log.status == 'success' %}bg-green-400{% elif log.status == 'error' %}bg-red-400{% else %}bg-yellow-400{% endif %}"></div>
+                                <span class="text-sm text-gray-900">{{ log.status|title }}</span>
+                                {% if log.model_used %}
+                                <span class="text-xs text-gray-500">{{ log.model_used }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                {{ log.timestamp|date:"M d, H:i" }}
+                                {% if log.response_time_ms %}
+                                <span class="ml-2">{{ log.response_time_ms }}ms</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-sm text-gray-500">No connection logs yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Test Bedrock Connection
+    document.getElementById('testConnectionBtn').addEventListener('click', function() {
+        const btn = this;
+        const originalText = btn.textContent;
+        btn.textContent = 'Testing...';
+        btn.disabled = true;
+
+        fetch('{% url "admin_panel:test_bedrock" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            const statusDiv = document.getElementById('connectionStatus');
+            const timestamp = new Date().toLocaleString();
+            
+            if (data.status === 'success') {
+                statusDiv.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Status:</span>
+                        <span class="text-sm text-green-600 font-medium">✓ Connected</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Response Time:</span>
+                        <span class="text-sm text-gray-900">${data.response_time_ms}ms</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Available Models:</span>
+                        <span class="text-sm text-gray-900">${data.total_models}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Last Test:</span>
+                        <span class="text-sm text-gray-900">${timestamp}</span>
+                    </div>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Status:</span>
+                        <span class="text-sm text-red-600 font-medium">✗ Failed</span>
+                    </div>
+                    <div class="text-sm text-red-600 mt-2">${data.message}</div>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-sm text-gray-600">Last Test:</span>
+                        <span class="text-sm text-gray-900">${timestamp}</span>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('connectionStatus').innerHTML = `
+                <div class="text-sm text-red-600">Connection test failed: ${error.message}</div>
+            `;
+        })
+        .finally(() => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        });
+    });
+
+    // Toggle AI Features
+    document.getElementById('toggleAIBtn').addEventListener('click', function() {
+        const btn = this;
+        const originalText = btn.textContent;
+        btn.textContent = 'Processing...';
+        btn.disabled = true;
+
+        fetch('{% url "admin_panel:toggle_ai" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                location.reload(); // Reload to update UI
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error toggling AI features');
+        })
+        .finally(() => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        });
+    });
+
+    // Load and display charts
+    loadUsageCharts();
+});
+
+function loadUsageCharts() {
+    fetch('{% url "admin_panel:usage_stats_api" %}')
+        .then(response => response.json())
+        .then(data => {
+            // Line Chart
+            const lineCtx = document.getElementById('usageLineChart').getContext('2d');
+            new Chart(lineCtx, {
+                type: 'line',
+                data: data.line_chart,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Pie Chart
+            const pieCtx = document.getElementById('modelPieChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'pie',
+                data: data.pie_chart,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading charts:', error);
+        });
+}
+</script>
+{% endblock %}
