@@ -1,0 +1,355 @@
+{% extends 'base.html' %}
+
+{% block title %}Generated Social Media Caption{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div class="mb-4 sm:mb-0">
+                    <h1 class="text-3xl font-bold text-gray-900">Generated {{ result.parameters.platform|title }} Caption</h1>
+                    <p class="text-gray-600 mt-2">{{ product_info.name }}</p>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
+                    <a href="{% url 'generator:social_media' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
+                        Generate Again
+                    </a>
+                    <a href="{% url 'generator:dashboard' %}" class="w-full sm:w-auto inline-flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        <i data-lucide="home" class="w-4 h-4 mr-2"></i>
+                        Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generation Info -->
+        <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-green-700">
+                        <strong>Generation Parameters:</strong> 
+                        {{ result.parameters.platform|title }} platform, 
+                        {{ result.parameters.length }} length, 
+                        {{ result.parameters.variations }} variation(s), 
+                        {{ result.parameters.model_type }} model
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generated Content -->
+        {% for content in result.content %}
+        <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-900">
+                    {% if result.parameters.variations > 1 %}
+                        Caption Variation {{ content.variation_number|default:forloop.counter }}
+                    {% else %}
+                        Generated Caption
+                    {% endif %}
+                </h2>
+                <div class="flex space-x-2">
+                    <button onclick="copyToClipboard('caption-{{ forloop.counter }}')" 
+                            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
+                        📋 Copy
+                    </button>
+                    <button onclick="saveContent('{{ content.text|escapejs }}', '{{ result.parameters.platform }}')" 
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                        💾 Save
+                    </button>
+                    <button onclick="analyzeContent('{{ content.text|escapejs }}')" 
+                            class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm">
+                        📊 Analyze
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Platform Badge -->
+            <div class="mb-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-{{ result.parameters.platform }}-100 text-{{ result.parameters.platform }}-800">
+                    {% if result.parameters.platform == 'instagram' %}📸{% elif result.parameters.platform == 'facebook' %}👍{% elif result.parameters.platform == 'tiktok' %}🎵{% elif result.parameters.platform == 'twitter' %}🐦{% endif %}
+                    {{ result.parameters.platform|title }}
+                </span>
+            </div>
+            
+            <div id="caption-{{ forloop.counter }}" class="prose max-w-none">
+                <div class="bg-gray-50 p-4 rounded-md border">
+                    {{ content.text|linebreaks }}
+                </div>
+            </div>
+            
+            <!-- Platform-specific Display -->
+            <div class="mt-4 bg-blue-50 p-4 rounded-md">
+                <h4 class="font-medium text-blue-900 mb-2">Preview untuk {{ result.parameters.platform|title }}:</h4>
+                <div class="text-sm text-blue-800" id="platform-preview-{{ forloop.counter }}">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Content Stats -->
+            <div class="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4 text-sm text-gray-600">
+                <div>
+                    <strong>Words:</strong> {{ content.generated_tokens }}
+                </div>
+                <div>
+                    <strong>Characters:</strong> {{ content.text|length }}
+                </div>
+                <div>
+                    <strong>Hashtags:</strong> <span id="hashtag-count-{{ forloop.counter }}">-</span>
+                </div>
+                <div>
+                    <strong>Response Time:</strong> {{ content.response_time|floatformat:2 }}s
+                </div>
+                <div>
+                    <strong>Est. Cost:</strong> ${{ content.estimated_cost }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Analysis Results (Hidden initially) -->
+        <div id="analysis-results" class="hidden bg-white shadow rounded-lg p-6 mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Content Analysis</h3>
+            <div id="analysis-content"></div>
+        </div>
+
+        <!-- Hashtag Suggestions -->
+        <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">💡 Hashtag Suggestions</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                    <h4 class="font-medium text-gray-700 mb-2">Trending:</h4>
+                    <div class="space-y-1 text-sm">
+                        <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded">#viral</span>
+                        <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded">#trending</span>
+                        <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded">#fyp</span>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700 mb-2">Indonesia:</h4>
+                    <div class="space-y-1 text-sm">
+                        <span class="inline-block bg-red-100 text-red-800 px-2 py-1 rounded">#indonesia</span>
+                        <span class="inline-block bg-red-100 text-red-800 px-2 py-1 rounded">#buatanindonesia</span>
+                        <span class="inline-block bg-red-100 text-red-800 px-2 py-1 rounded">#ekonomikreatif</span>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700 mb-2">Product:</h4>
+                    <div class="space-y-1 text-sm">
+                        <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded">#{{ product_info.category|lower }}</span>
+                        <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded">#produklokal</span>
+                        <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded">#handmade</span>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700 mb-2">Platform:</h4>
+                    <div class="space-y-1 text-sm">
+                        {% if result.parameters.platform == 'instagram' %}
+                        <span class="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded">#reels</span>
+                        <span class="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded">#instashop</span>
+                        {% elif result.parameters.platform == 'tiktok' %}
+                        <span class="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded">#tiktokshop</span>
+                        <span class="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded">#tiktokmademe</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">What's Next?</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{% url 'generator:product_description' %}" 
+                   class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg text-center">
+                    📝 Create Product Description
+                </a>
+                <a href="{% url 'generator:headlines' %}" 
+                   class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg text-center">
+                    🎯 Generate Headlines
+                </a>
+                <a href="{% url 'generator:history' %}" 
+                   class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-lg text-center">
+                    📚 View History
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize platform previews and hashtag counts
+document.addEventListener('DOMContentLoaded', function() {
+    {% for content in result.content %}
+    updatePlatformPreview({{ forloop.counter }}, '{{ content.text|escapejs }}', '{{ result.parameters.platform }}');
+    updateHashtagCount({{ forloop.counter }}, '{{ content.text|escapejs }}');
+    {% endfor %}
+});
+
+function updatePlatformPreview(index, text, platform) {
+    const previewDiv = document.getElementById(`platform-preview-${index}`);
+    const limits = {
+        'instagram': 2200,
+        'facebook': 8000,
+        'tiktok': 2200,
+        'twitter': 280
+    };
+    
+    const limit = limits[platform] || 2200;
+    const length = text.length;
+    const percentage = (length / limit) * 100;
+    
+    let statusColor = 'text-green-600';
+    let statusText = 'Optimal';
+    
+    if (percentage > 90) {
+        statusColor = 'text-red-600';
+        statusText = 'Too Long';
+    } else if (percentage > 70) {
+        statusColor = 'text-yellow-600';
+        statusText = 'Getting Long';
+    }
+    
+    previewDiv.innerHTML = `
+        <div class="flex justify-between items-center">
+            <span>Character count: ${length} / ${limit}</span>
+            <span class="${statusColor} font-medium">${statusText}</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+            <div class="bg-blue-600 h-2 rounded-full" style="width: ${Math.min(percentage, 100)}%"></div>
+        </div>
+    `;
+}
+
+function updateHashtagCount(index, text) {
+    const hashtags = text.match(/#\w+/g) || [];
+    document.getElementById(`hashtag-count-${index}`).textContent = hashtags.length;
+}
+
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    const text = element.textContent || element.innerText;
+    
+    navigator.clipboard.writeText(text).then(function() {
+        showNotification('✅ Caption copied to clipboard!', 'success');
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+        showNotification('❌ Failed to copy caption', 'error');
+    });
+}
+
+async function saveContent(content, platform) {
+    try {
+        const response = await fetch('{% url "generator:api_save_content" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                content: content,
+                content_type: 'social_media_caption',
+                platform: platform,
+                product_name: '{{ product_info.name|escapejs }}'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('✅ Content saved successfully!', 'success');
+        } else {
+            showNotification('❌ Failed to save content: ' + result.error, 'error');
+        }
+    } catch (error) {
+        showNotification('❌ Error saving content: ' + error.message, 'error');
+    }
+}
+
+async function analyzeContent(content) {
+    try {
+        const response = await fetch('{% url "generator:analyze_content" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                content: content,
+                content_type: 'social_media_caption'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            displayAnalysis(result.analysis);
+        } else {
+            showNotification('❌ Analysis failed: ' + result.error, 'error');
+        }
+    } catch (error) {
+        showNotification('❌ Analysis error: ' + error.message, 'error');
+    }
+}
+
+function displayAnalysis(analysis) {
+    const analysisDiv = document.getElementById('analysis-results');
+    const contentDiv = document.getElementById('analysis-content');
+    
+    contentDiv.innerHTML = `
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div class="bg-blue-50 p-3 rounded">
+                <div class="text-sm text-gray-600">Word Count</div>
+                <div class="text-lg font-bold text-blue-600">${analysis.word_count}</div>
+            </div>
+            <div class="bg-green-50 p-3 rounded">
+                <div class="text-sm text-gray-600">Characters</div>
+                <div class="text-lg font-bold text-green-600">${analysis.character_count}</div>
+            </div>
+            <div class="bg-yellow-50 p-3 rounded">
+                <div class="text-sm text-gray-600">Readability</div>
+                <div class="text-lg font-bold text-yellow-600">${analysis.readability_score}</div>
+            </div>
+            <div class="bg-purple-50 p-3 rounded">
+                <div class="text-sm text-gray-600">Tone</div>
+                <div class="text-lg font-bold text-purple-600">${analysis.tone_analysis}</div>
+            </div>
+        </div>
+        ${analysis.recommendations.length > 0 ? `
+            <div class="bg-orange-50 border-l-4 border-orange-400 p-4">
+                <h4 class="font-medium text-orange-800">Recommendations:</h4>
+                <ul class="mt-2 text-orange-700">
+                    ${analysis.recommendations.map(rec => `<li>• ${rec}</li>`).join('')}
+                </ul>
+            </div>
+        ` : ''}
+    `;
+    
+    analysisDiv.classList.remove('hidden');
+    analysisDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+    notification.textContent = message;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}

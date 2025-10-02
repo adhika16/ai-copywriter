@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p class="text-gray-600 mt-2">Buat konten marketing yang menarik untuk produk Indonesia</p>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-50 text-blue-600">
+                        <i data-lucide="file-text" class="w-6 h-6"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Deskripsi Produk</h3>
+                        <p class="text-gray-600 text-sm">Buat deskripsi menarik</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-50 text-green-600">
+                        <i data-lucide="hash" class="w-6 h-6"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Social Media</h3>
+                        <p class="text-gray-600 text-sm">Caption untuk semua platform</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-purple-50 text-purple-600">
+                        <i data-lucide="megaphone" class="w-6 h-6"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Headlines</h3>
+                        <p class="text-gray-600 text-sm">Judul yang menarik perhatian</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-orange-50 text-orange-600">
+                        <i data-lucide="zap" class="w-6 h-6"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Quick Generator</h3>
+                        <p class="text-gray-600 text-sm">Generator cepat</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Product Description Generator -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
+                <div class="flex items-start space-x-4">
+                    <div class="p-3 rounded-full bg-blue-50 text-blue-600">
+                        <i data-lucide="file-text" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-2">Generator Deskripsi Produk</h2>
+                        <p class="text-gray-600 mb-4">Buat deskripsi produk yang menarik dan persuasif untuk ekonomi kreatif Indonesia.</p>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                Optimized untuk produk lokal
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                Multiple tone options
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                Variasi panjang konten
+                            </div>
+                        </div>
+                        <a href="{% url 'generator:product_description' %}" class="inline-flex items-center bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors">
+                            <i data-lucide="arrow-right" class="w-4 h-4 mr-2"></i>
+                            Mulai Generator
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Media Generator -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
+                <div class="flex items-start space-x-4">
+                    <div class="p-3 rounded-full bg-green-50 text-green-600">
+                        <i data-lucide="hash" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-2">Generator Social Media</h2>
+                        <p class="text-gray-600 mb-4">Buat caption yang engaging untuk Instagram, Facebook, TikTok, dan Twitter.</p>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                Platform-specific optimization
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                Hashtag suggestions
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                Engaging call-to-actions
+                            </div>
+                        </div>
+                        <a href="{% url 'generator:social_media' %}" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors">
+                            <i data-lucide="arrow-right" class="w-4 h-4 mr-2"></i>
+                            Mulai Generator
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Headlines Generator -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
+                <div class="flex items-start space-x-4">
+                    <div class="p-3 rounded-full bg-purple-50 text-purple-600">
+                        <i data-lucide="megaphone" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-2">Generator Headlines</h2>
+                        <p class="text-gray-600 mb-4">Buat headline marketing yang powerful untuk berbagai keperluan kampanye.</p>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                Multiple headline variations
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                Conversion-focused
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                A/B testing ready
+                            </div>
+                        </div>
+                        <a href="{% url 'generator:headlines' %}" class="inline-flex items-center bg-purple-500 hover:bg-purple-600 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors">
+                            <i data-lucide="arrow-right" class="w-4 h-4 mr-2"></i>
+                            Mulai Generator
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Generator -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
+                <div class="flex items-start space-x-4">
+                    <div class="p-3 rounded-full bg-orange-50 text-orange-600">
+                        <i data-lucide="zap" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-2">Quick Generator</h2>
+                        <p class="text-gray-600 mb-4">Generator cepat untuk semua jenis konten dengan satu form sederhana.</p>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                All-in-one generator
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                Simple interface
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                Fast results
+                            </div>
+                        </div>
+                        <a href="{% url 'generator:quick_generator' %}" class="inline-flex items-center bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors">
+                            <i data-lucide="arrow-right" class="w-4 h-4 mr-2"></i>
+                            Mulai Generator
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-900">Aktivitas Terbaru</h2>
+                <a href="{% url 'generator:history' %}" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    Lihat Semua
+                </a>
+            </div>
+            
+            {% if recent_content %}
+                <div class="space-y-4">
+                    {% for item in recent_content %}
+                    <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+                            <div class="flex-1 mb-4 sm:mb-0">
+                                <h3 class="font-medium text-gray-900">
+                                    <a href="{% url 'generator:content_detail' item.id %}" class="hover:text-gray-700 transition-colors">
+                                        {{ item.request.product_name|truncatechars:40 }}
+                                    </a>
+                                </h3>
+                                <div class="flex items-center flex-wrap gap-2 text-sm text-gray-500 mt-2">
+                                    <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+                                        {{ item.request.content_type.name|title }}
+                                    </span>
+                                    {% if item.request.content_type.platform != 'general' %}
+                                        <span class="bg-green-50 text-green-700 px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+                                            {{ item.request.content_type.platform|title }}
+                                        </span>
+                                    {% endif %}
+                                    <span class="whitespace-nowrap">{{ item.created_at|timesince }} yang lalu</span>
+                                    {% if item.is_favorite %}
+                                        <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
+                                    {% endif %}
+                                </div>
+                                <p class="text-gray-600 text-sm mt-3">
+                                    {{ item.generated_text|truncatechars:120 }}
+                                </p>
+                            </div>
+                            <div class="flex-shrink-0 sm:ml-4 flex space-x-2">
+                                <a href="{% url 'generator:content_detail' item.id %}" 
+                                   class="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                                    <i data-lucide="eye" class="w-4 h-4 mr-1"></i>
+                                    Lihat
+                                </a>
+                                <button onclick="copyToClipboard('{{ item.generated_text|escapejs }}')" 
+                                        class="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                                    <i data-lucide="copy" class="w-4 h-4 mr-1"></i>
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <i data-lucide="file-x" class="w-12 h-12 text-gray-400 mx-auto mb-3"></i>
+                    <p class="text-gray-500">Belum ada konten yang dibuat.</p>
+                    <p class="text-gray-400 text-sm">Mulai dengan generator di atas!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Copy to clipboard function
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        showNotification('✅ Konten berhasil disalin!', 'success');
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+        showNotification('❌ Gagal menyalin konten', 'error');
+    });
+}
+
+// Simple notification function
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 transform transition-transform duration-300 translate-x-full`;
+    notification.style.backgroundColor = type === 'success' ? '#10B981' : 
+        type === 'error' ? '#EF4444' : '#3B82F6';
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(full)';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+</script>
+{% endblock %}

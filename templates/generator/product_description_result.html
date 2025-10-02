@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div class="mb-4 sm:mb-0">
+                    <h1 class="text-3xl font-bold text-gray-900">Generated Product Description</h1>
+                    <p class="text-gray-600 mt-2">{{ product_info.name }}</p>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
+                    <a href="{% url 'generator:product_description' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
+                        Generate Again
+                    </a>
+                    <a href="{% url 'generator:dashboard' %}" class="w-full sm:w-auto inline-flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        <i data-lucide="home" class="w-4 h-4 mr-2"></i>
+                        Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generation Info -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        <strong>Generation Parameters:</strong> 
+                        {{ result.parameters.tone|title }} tone, 
+                        {{ result.parameters.length }} length, 
+                        {{ result.parameters.variations }} variation(s), 
+                        {{ result.parameters.model_type }} model
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generated Content -->
+        {% for content in result.content %}
+        <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-900">
+                    {% if result.parameters.variations > 1 %}
+                        Variation {{ content.variation_number|default:forloop.counter }}
+                    {% else %}
+                        Generated Description
+                    {% endif %}
+                </h2>
+                <div class="flex space-x-2">
+                    <button onclick="copyToClipboard('content-{{ forloop.counter }}')" 
+                            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
+                        📋 Copy
+                    </button>
+                    <button onclick="analyzeContent('{{ content.text|escapejs }}')" 
+                            class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm">
+                        📊 Analyze
+                    </button>
+                </div>
+            </div>
+            
+            <div id="content-{{ forloop.counter }}" class="prose max-w-none">
+                <div class="bg-gray-50 p-4 rounded-md border">
+                    {{ content.text|linebreaks }}
+                </div>
+            </div>
+            
+            <!-- Content Stats -->
+            <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
+                <div>
+                    <strong>Words:</strong> {{ content.generated_tokens }}
+                </div>
+                <div>
+                    <strong>Characters:</strong> {{ content.text|length }}
+                </div>
+                <div>
+                    <strong>Response Time:</strong> {{ content.response_time|floatformat:2 }}s
+                </div>
+                <div>
+                    <strong>Est. Cost:</strong> ${{ content.estimated_cost }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Analysis Results (Hidden initially) -->
+        <div id="analysis-results" class="hidden bg-white shadow rounded-lg p-6 mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Content Analysis</h3>
+            <div id="analysis-content"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">What's Next?</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{% url 'generator:social_media' %}" 
+                   class="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg text-center">
+                    📱 Create Social Media Caption
+                </a>
+                <a href="{% url 'generator:headlines' %}" 
+                   class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg text-center">
+                    📝 Generate Headlines
+                </a>
+                <a href="{% url 'generator:history' %}" 
+                   class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-lg text-center">
+                    📚 View History
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    const text = element.textContent || element.innerText;
+    
+    navigator.clipboard.writeText(text).then(function() {
+        alert('✅ Content copied to clipboard!');
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+        alert('❌ Failed to copy content');
+    });
+}
+
+async function analyzeContent(content) {
+    try {
+        const response = await fetch('{% url "generator:analyze_content" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                content: content,
+                content_type: 'product_description'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            displayAnalysis(result.analysis);
+        } else {
+            alert('❌ Analysis failed: ' + result.error);
+        }
+    } catch (error) {
+        alert('❌ Analysis error: ' + error.message);
+    }
+}
+
+function displayAnalysis(analysis) {
+    const analysisDiv = document.getElementById('analysis-results');
+    const contentDiv = document.getElementById('analysis-content');
+    
+    contentDiv.innerHTML = `
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div class="bg-blue-50 p-3 rounded">
+                <div class="text-sm text-gray-600">Word Count</div>
+                <div class="text-lg font-bold text-blue-600">${analysis.word_count}</div>
+            </div>
+            <div class="bg-green-50 p-3 rounded">
+                <div class="text-sm text-gray-600">Characters</div>
+                <div class="text-lg font-bold text-green-600">${analysis.character_count}</div>
+            </div>
+            <div class="bg-yellow-50 p-3 rounded">
+                <div class="text-sm text-gray-600">Readability</div>
+                <div class="text-lg font-bold text-yellow-600">${analysis.readability_score}</div>
+            </div>
+            <div class="bg-purple-50 p-3 rounded">
+                <div class="text-sm text-gray-600">Tone</div>
+                <div class="text-lg font-bold text-purple-600">${analysis.tone_analysis}</div>
+            </div>
+        </div>
+        ${analysis.recommendations.length > 0 ? `
+            <div class="bg-orange-50 border-l-4 border-orange-400 p-4">
+                <h4 class="font-medium text-orange-800">Recommendations:</h4>
+                <ul class="mt-2 text-orange-700">
+                    ${analysis.recommendations.map(rec => `<li>• ${rec}</li>`).join('')}
+                </ul>
+            </div>
+        ` : ''}
+    `;
+    
+    analysisDiv.classList.remove('hidden');
+    analysisDiv.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+{% endblock %}

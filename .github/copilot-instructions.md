@@ -1,5 +1,14 @@
 ## MVP Plan: AI Copywriter Web App
 
+> **⚠️ Always activate your Python virtual environment (`venv`) before running any Python-related scripts or commands.**
+>
+> Example:
+> ```
+> source venv/bin/activate   # On macOS/Linux
+> .\venv\Scripts\activate    # On Windows
+> ```
+> This ensures dependencies are installed and managed correctly for the project.
+
 ### **Tech Stack Justification**
 - **Django**: Perfect for rapid development, built-in admin, excellent for content management
 - **TailwindCSS**: Fast styling, responsive design, great for MVP iterations
@@ -249,8 +258,8 @@ AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 
 # Bedrock settings
 BEDROCK_MODELS = {
-    'fast': 'anthropic.claude-3-haiku-20240307-v1:0',
-    'quality': 'anthropic.claude-3-sonnet-20240229-v1:0',
+    'fast': 'amazon.nova-lite-v1:0',
+    'quality': 'amazon.nova-pro-v1:0',
     'titan': 'amazon.titan-text-express-v1'
 }
 ```

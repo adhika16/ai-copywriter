@@ -15,11 +15,11 @@
             
             {% if user.is_authenticated %}
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="#" class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-8 rounded-md transition-colors">
-                        Create Content
+                    <a href="{% url 'generator:dashboard' %}" class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-8 rounded-md transition-colors">
+                        Go to Dashboard
                     </a>
-                    <a href="#" class="border border-gray-600 text-white hover:border-gray-400 font-medium py-3 px-8 rounded-md transition-colors">
-                        View Templates
+                    <a href="{% url 'generator:quick_generator' %}" class="border border-gray-600 text-white hover:border-gray-400 font-medium py-3 px-8 rounded-md transition-colors">
+                        Quick Generator
                     </a>
                 </div>
             {% else %}

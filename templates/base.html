@@ -8,16 +8,25 @@
     <title>AI Copywriter - Ekonomi Kreatif Indonesia</title>
     {% tailwind_css %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/dist/styles.css' %}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bunny Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
         * { font-family: 'Inter', sans-serif; }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
 <body class="bg-white">
     <!-- Clean Navigation -->
-    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <nav x-data="{ open: false }" class="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
@@ -25,29 +34,70 @@
                         AI Copywriter
                     </a>
                 </div>
-                <div class="flex items-center space-x-4">
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-6">
                     {% if user.is_authenticated %}
+                        <a href="{% url 'generator:dashboard' %}" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">Dashboard</a>
+                        <a href="{% url 'generator:product_description' %}" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">Generator</a>
+                        <a href="{% url 'generator:history' %}" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">History</a>
                         <div class="flex items-center space-x-4">
                             <span class="text-sm text-gray-600">{{ user.username }}</span>
                             <form action="{% url 'logout' %}" method="post" class="inline">
                                 {% csrf_token %}
-                                <button type="submit" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                                    Logout
-                                </button>
+                                <button type="submit" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">Logout</button>
                             </form>
                         </div>
                     {% else %}
-                        <div class="flex items-center space-x-4">
-                            <a href="{% url 'login' %}" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                                Login
-                            </a>
-                            <a href="{% url 'signup' %}" class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors">
-                                Sign Up
-                            </a>
-                        </div>
+                        <a href="{% url 'login' %}" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">Login</a>
+                        <a href="{% url 'signup' %}" class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors">Sign Up</a>
                     {% endif %}
                 </div>
+
+                <!-- Hamburger Button -->
+                <div class="md:hidden flex items-center">
+                    <button @click="open = !open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500">
+                        <span class="sr-only">Open main menu</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="!open">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="open" x-cloak>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
             </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div x-show="open" class="md:hidden">
+            <div class="pt-2 pb-3 space-y-1 px-2 sm:px-3">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'generator:dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Dashboard</a>
+                    <a href="{% url 'generator:product_description' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Generator</a>
+                    <a href="{% url 'generator:history' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">History</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Login</a>
+                    <a href="{% url 'signup' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Sign Up</a>
+                {% endif %}
+            </div>
+            {% if user.is_authenticated %}
+                <div class="pt-4 pb-3 border-t border-gray-200">
+                    <div class="flex items-center px-4">
+                        <div class="ml-3">
+                            <div class="text-base font-medium text-gray-800">{{ user.username }}</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 space-y-1 px-2">
+                        <form action="{% url 'logout' %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </nav>
     
@@ -55,6 +105,13 @@
         {% block content %}
         {% endblock %}
     </main>
+
+    <!-- Initialize Lucide Icons -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+    </script>
 
     <!-- Clean Footer -->
     <footer class="bg-gray-50 border-t border-gray-200 mt-0">

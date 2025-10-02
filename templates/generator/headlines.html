@@ -1,0 +1,439 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div class="mb-4 sm:mb-0">
+                    <h1 class="text-3xl font-bold text-gray-900">Marketing Headlines Generator</h1>
+                    <p class="text-gray-600 mt-2">Ciptakan headline menarik untuk produk ekonomi kreatif Indonesia</p>
+                </div>
+                <a href="{% url 'generator:dashboard' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Kembali
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Form -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <form id="headlineForm" method="post">
+                {% csrf_token %}
+                
+                <!-- Product Information Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Informasi Produk</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="product_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                Nama Produk *
+                            </label>
+                            <input type="text" id="product_name" name="product_name" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                                   placeholder="Contoh: Tas Rajut Handmade">
+                        </div>
+                        
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                                Kategori Produk *
+                            </label>
+                            <select id="category" name="category" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+                                <option value="">Pilih kategori...</option>
+                                <option value="fashion">Fashion</option>
+                                <option value="kuliner">Kuliner</option>
+                                <option value="kerajinan">Kerajinan</option>
+                                <option value="teknologi">Teknologi</option>
+                                <option value="kesehatan">Kesehatan & Kecantikan</option>
+                                <option value="pendidikan">Pendidikan</option>
+                                <option value="hiburan">Hiburan</option>
+                                <option value="olahraga">Olahraga</option>
+                                <option value="rumah_tangga">Rumah Tangga</option>
+                                <option value="lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="price_range" class="block text-sm font-medium text-gray-700 mb-2">
+                                Rentang Harga
+                            </label>
+                            <select id="price_range" name="price_range"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Pilih rentang harga...</option>
+                                <option value="under_50k">Di bawah Rp 50.000</option>
+                                <option value="50k_100k">Rp 50.000 - 100.000</option>
+                                <option value="100k_250k">Rp 100.000 - 250.000</option>
+                                <option value="250k_500k">Rp 250.000 - 500.000</option>
+                                <option value="500k_1m">Rp 500.000 - 1 juta</option>
+                                <option value="over_1m">Di atas Rp 1 juta</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="target_audience" class="block text-sm font-medium text-gray-700 mb-2">
+                                Target Audience *
+                            </label>
+                            <select id="target_audience" name="target_audience" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Pilih target audience...</option>
+                                <option value="remaja">Remaja (13-17 tahun)</option>
+                                <option value="dewasa_muda">Dewasa Muda (18-25 tahun)</option>
+                                <option value="profesional_muda">Profesional Muda (26-35 tahun)</option>
+                                <option value="keluarga">Keluarga (36-45 tahun)</option>
+                                <option value="senior">Senior (46+ tahun)</option>
+                                <option value="ibu_rumah_tangga">Ibu Rumah Tangga</option>
+                                <option value="pekerja_kantoran">Pekerja Kantoran</option>
+                                <option value="pelajar_mahasiswa">Pelajar & Mahasiswa</option>
+                                <option value="umum">Umum</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Details Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">✨ Detail Produk</h2>
+                    <div class="grid grid-cols-1 gap-6">
+                        <div>
+                            <label for="key_benefits" class="block text-sm font-medium text-gray-700 mb-2">
+                                Manfaat Utama *
+                            </label>
+                            <textarea id="key_benefits" name="key_benefits" required rows="3"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                      placeholder="Contoh: Tahan lama, ramah lingkungan, design unik, buatan tangan artisan lokal"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label for="unique_selling_point" class="block text-sm font-medium text-gray-700 mb-2">
+                                Unique Selling Point (USP) *
+                            </label>
+                            <textarea id="unique_selling_point" name="unique_selling_point" required rows="2"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                      placeholder="Apa yang membuat produk ini berbeda dari kompetitor?"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label for="problem_solved" class="block text-sm font-medium text-gray-700 mb-2">
+                                Masalah yang Dipecahkan
+                            </label>
+                            <textarea id="problem_solved" name="problem_solved" rows="2"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                      placeholder="Masalah apa yang dipecahkan oleh produk ini?"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Headline Types Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">🎯 Jenis Headlines</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="headline_types" value="attention_grabbing" checked
+                                       class="mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">
+                                    <strong>Attention Grabbing</strong><br>
+                                    <span class="text-gray-600">Headlines yang langsung menarik perhatian</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="headline_types" value="benefit_focused"
+                                       class="mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">
+                                    <strong>Benefit-Focused</strong><br>
+                                    <span class="text-gray-600">Fokus pada manfaat produk</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="headline_types" value="curiosity_driven"
+                                       class="mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">
+                                    <strong>Curiosity-Driven</strong><br>
+                                    <span class="text-gray-600">Membangkitkan rasa penasaran</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="headline_types" value="problem_solving"
+                                       class="mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">
+                                    <strong>Problem-Solving</strong><br>
+                                    <span class="text-gray-600">Menekankan solusi masalah</span>
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="headline_types" value="urgency_scarcity"
+                                       class="mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">
+                                    <strong>Urgency & Scarcity</strong><br>
+                                    <span class="text-gray-600">Menciptakan rasa urgensi</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="headline_types" value="social_proof"
+                                       class="mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">
+                                    <strong>Social Proof</strong><br>
+                                    <span class="text-gray-600">Menggunakan testimoni/review</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="headline_types" value="local_pride"
+                                       class="mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">
+                                    <strong>Local Pride</strong><br>
+                                    <span class="text-gray-600">Bangga produk lokal Indonesia</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" name="headline_types" value="emotional_appeal"
+                                       class="mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">
+                                    <strong>Emotional Appeal</strong><br>
+                                    <span class="text-gray-600">Menyentuh emosi audience</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Usage Context Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">📍 Konteks Penggunaan</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="usage_context" class="block text-sm font-medium text-gray-700 mb-2">
+                                Akan digunakan untuk *
+                            </label>
+                            <select id="usage_context" name="usage_context" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Pilih konteks...</option>
+                                <option value="website">Website/Landing Page</option>
+                                <option value="social_media_ads">Iklan Media Sosial</option>
+                                <option value="email_marketing">Email Marketing</option>
+                                <option value="google_ads">Google Ads</option>
+                                <option value="banner_display">Banner/Display Ads</option>
+                                <option value="print_media">Media Cetak</option>
+                                <option value="video_thumbnail">Video Thumbnail</option>
+                                <option value="product_packaging">Kemasan Produk</option>
+                                <option value="press_release">Press Release</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="character_limit" class="block text-sm font-medium text-gray-700 mb-2">
+                                Batasan Karakter
+                            </label>
+                            <select id="character_limit" name="character_limit"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Tidak ada batasan</option>
+                                <option value="30">Maksimal 30 karakter (Google Ads)</option>
+                                <option value="50">Maksimal 50 karakter (Facebook Ads)</option>
+                                <option value="70">Maksimal 70 karakter (Email Subject)</option>
+                                <option value="100">Maksimal 100 karakter (Banner)</option>
+                                <option value="150">Maksimal 150 karakter (Fleksibel)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Character Limit Info -->
+                    <div id="character-limit-info" class="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 hidden">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700" id="character-limit-text"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generation Settings Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">⚙️ Pengaturan Generasi</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="tone" class="block text-sm font-medium text-gray-700 mb-2">
+                                Tone Komunikasi *
+                            </label>
+                            <select id="tone" name="tone" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="profesional">Profesional</option>
+                                <option value="kasual">Kasual</option>
+                                <option value="energik">Energik</option>
+                                <option value="mewah">Mewah/Premium</option>
+                                <option value="ramah">Ramah & Hangat</option>
+                                <option value="inspiratif">Inspiratif</option>
+                                <option value="playful">Playful</option>
+                                <option value="edukatif">Edukatif</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="variations" class="block text-sm font-medium text-gray-700 mb-2">
+                                Jumlah Variasi
+                            </label>
+                            <select id="variations" name="variations"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="3">3 variasi</option>
+                                <option value="5" selected>5 variasi</option>
+                                <option value="8">8 variasi</option>
+                                <option value="10">10 variasi</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="model_type" class="block text-sm font-medium text-gray-700 mb-2">
+                                Model AI
+                            </label>
+                            <select id="model_type" name="model_type"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="fast">Fast (Amazon Nova Lite)</option>
+                                <option value="quality" selected>Quality (Amazon Nova Pro)</option>
+                                <option value="titan">AWS Titan</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Instructions -->
+                <div class="mb-8">
+                    <label for="additional_instructions" class="block text-sm font-medium text-gray-700 mb-2">
+                        📝 Instruksi Tambahan (Opsional)
+                    </label>
+                    <textarea id="additional_instructions" name="additional_instructions" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="Contoh: Hindari kata 'murah', sertakan nama brand, fokus pada sustainability, dll."></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button type="submit" id="generateBtn" 
+                            class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 transform hover:scale-105">
+                        🚀 Generate Headlines
+                    </button>
+                    <div id="loading" class="hidden mt-4">
+                        <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-blue-500">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Generating headlines...
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="mt-8 bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
+            <h3 class="text-lg font-medium text-yellow-800 mb-3">💡 Tips untuk Headlines yang Efektif</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-yellow-700">
+                <ul class="space-y-1">
+                    <li>• Gunakan angka dan statistik yang spesifik</li>
+                    <li>• Sertakan kata-kata emosional yang kuat</li>
+                    <li>• Buat rasa urgency atau exclusivity</li>
+                    <li>• Fokus pada manfaat, bukan fitur</li>
+                </ul>
+                <ul class="space-y-1">
+                    <li>• Gunakan kata kerja aktif dan tegas</li>
+                    <li>• Sebutkan target audience secara spesifik</li>
+                    <li>• Test dengan A/B testing jika memungkinkan</li>
+                    <li>• Pertimbangkan SEO keywords jika untuk web</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('headlineForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Validate at least one headline type is selected
+    const checkedTypes = document.querySelectorAll('input[name="headline_types"]:checked');
+    if (checkedTypes.length === 0) {
+        alert('Pilih minimal satu jenis headline!');
+        return;
+    }
+    
+    // Show loading state
+    document.getElementById('generateBtn').style.display = 'none';
+    document.getElementById('loading').classList.remove('hidden');
+    
+    // Submit form
+    this.submit();
+});
+
+// Character limit info
+document.getElementById('character_limit').addEventListener('change', function() {
+    const infoDiv = document.getElementById('character-limit-info');
+    const textDiv = document.getElementById('character-limit-text');
+    
+    const limits = {
+        '30': 'Google Ads Headline: Fokus pada kata kunci utama dan call-to-action singkat.',
+        '50': 'Facebook Ads: Cukup ruang untuk benefit utama dan hook yang menarik.',
+        '70': 'Email Subject Line: Optimal untuk mobile preview dan desktop.',
+        '100': 'Banner/Display: Space cukup untuk pesan lengkap tapi tetap impactful.',
+        '150': 'Fleksibel: Cocok untuk berbagai platform dengan penyesuaian minor.'
+    };
+    
+    if (this.value && limits[this.value]) {
+        textDiv.textContent = limits[this.value];
+        infoDiv.classList.remove('hidden');
+    } else {
+        infoDiv.classList.add('hidden');
+    }
+});
+
+// Usage context info
+document.getElementById('usage_context').addEventListener('change', function() {
+    const characterLimit = document.getElementById('character_limit');
+    
+    // Auto-suggest character limits based on usage context
+    const suggestions = {
+        'google_ads': '30',
+        'social_media_ads': '50',
+        'email_marketing': '70',
+        'banner_display': '100'
+    };
+    
+    if (suggestions[this.value]) {
+        characterLimit.value = suggestions[this.value];
+        characterLimit.dispatchEvent(new Event('change'));
+    }
+});
+
+// Dynamic form validation
+document.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
+    field.addEventListener('blur', function() {
+        if (!this.value.trim()) {
+            this.classList.add('border-red-500');
+        } else {
+            this.classList.remove('border-red-500');
+        }
+    });
+});
+
+// Auto-resize textarea
+document.querySelectorAll('textarea').forEach(textarea => {
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+});
+</script>
+{% endblock %}

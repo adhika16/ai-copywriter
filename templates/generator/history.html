@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% csrf_token %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+            <div class="flex items-center space-x-4">
+                <a href="{% url 'generator:dashboard' %}" class="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Kembali
+                </a>
+                <h1 class="text-3xl font-bold text-gray-900">Content History</h1>
+            </div>
+            <div class="flex space-x-4">
+                <button onclick="exportSelected()" 
+                        class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors w-full sm:w-auto justify-center">
+                    <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                    Export Selected
+                </button>
+                <button onclick="copyAllSelected()" 
+                        class="inline-flex items-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors w-full sm:w-auto justify-center">
+                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
+                    Copy All
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">Filter Content</h2>
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Content Type</label>
+                    <select name="content_type" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+                        <option value="">All Types</option>
+                        {% for type in content_types %}
+                            <option value="{{ type.name }}" {% if current_filters.content_type == type.name %}selected{% endif %}>
+                                {{ type.name|title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Platform</label>
+                    <select name="platform" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+                        <option value="">All Platforms</option>
+                        <option value="instagram" {% if current_filters.platform == 'instagram' %}selected{% endif %}>Instagram</option>
+                        <option value="facebook" {% if current_filters.platform == 'facebook' %}selected{% endif %}>Facebook</option>
+                        <option value="tiktok" {% if current_filters.platform == 'tiktok' %}selected{% endif %}>TikTok</option>
+                        <option value="website" {% if current_filters.platform == 'website' %}selected{% endif %}>Website</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                <input type="text" name="search" value="{{ current_filters.search }}" 
+                       placeholder="Search content..." 
+                       class="w-full border border-gray-300 rounded-md px-3 py-2">
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-end gap-4">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md w-full sm:w-auto">
+                    Apply Filters
+                </button>
+                <a href="{% url 'generator:history' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md w-full sm:w-auto text-center">
+                    Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Content List -->
+    <div class="bg-white rounded-lg shadow-md">
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="rounded border-gray-300 mr-3">
+                    <label for="selectAll" class="text-sm font-medium text-gray-700">Select All</label>
+                    <span class="ml-4 text-sm text-gray-500" id="selectedCount">0 selected</span>
+                </div>
+                <div class="text-sm text-gray-500">
+                    Total: {{ total_items }} items
+                </div>
+            </div>
+        </div>
+
+        {% if content_items %}
+            <div class="divide-y divide-gray-200">
+                {% for item in content_items %}
+                <div class="p-6 hover:bg-gray-50">
+                    <div class="flex flex-col sm:flex-row sm:items-start sm:space-x-4">
+                        <input type="checkbox" class="content-checkbox rounded border-gray-300 mt-1" 
+                               value="{{ item.id }}" onchange="updateSelectedCount()">
+                        
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                                <div class="flex-1 mb-4 sm:mb-0">
+                                    <h3 class="text-lg font-medium text-gray-900">
+                                        <a href="{% url 'generator:content_detail' item.id %}" class="hover:text-blue-600">
+                                            {{ item.request.product_name|truncatechars:50 }}
+                                        </a>
+                                    </h3>
+                                    <div class="flex items-center flex-wrap gap-2 text-sm text-gray-500 mt-2">
+                                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full whitespace-nowrap">
+                                            {{ item.request.content_type.name|title }}
+                                        </span>
+                                        {% if item.request.content_type.platform != 'general' %}
+                                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full whitespace-nowrap">
+                                                {{ item.request.content_type.platform|title }}
+                                            </span>
+                                        {% endif %}
+                                        <span class="whitespace-nowrap">{{ item.created_at|date:"M d, Y H:i" }}</span>
+                                        {% if item.is_favorite %}
+                                            <button onclick="toggleFavorite({{ item.id }})" 
+                                                    class="inline-flex items-center text-yellow-500 hover:text-yellow-600 transition-colors">
+                                                <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Actions -->
+                                <div class="flex-shrink-0 flex flex-col sm:flex-row sm:items-center gap-2">
+                                    <a href="{% url 'generator:content_detail' item.id %}" 
+                                       class="inline-flex items-center justify-center bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-1 rounded-md text-sm">
+                                        <i data-lucide="eye" class="w-4 h-4 mr-2"></i>View
+                                    </a>
+                                    <button onclick="copyContent(`{{ item.generated_text|escapejs }}`)" 
+                                            class="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm">
+                                        <i data-lucide="copy" class="w-4 h-4 mr-2"></i>Copy
+                                    </button>
+                                    <button onclick="toggleFavorite({{ item.id }})" 
+                                            class="inline-flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full">
+                                        <i data-lucide="heart" class="w-4 h-4 {% if item.is_favorite %}fill-current text-red-500{% endif %}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Content Preview -->
+                            <div class="mt-3">
+                                <p class="text-gray-600 text-sm line-clamp-3">
+                                    {{ item.generated_text|truncatechars:200 }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-500">
+                        Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} results
+                    </div>
+                    <div class="flex space-x-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}{% if current_filters.content_type %}&content_type={{ current_filters.content_type }}{% endif %}{% if current_filters.platform %}&platform={{ current_filters.platform }}{% endif %}{% if current_filters.search %}&search={{ current_filters.search }}{% endif %}" 
+                               class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-3 py-1 rounded">
+                                Previous
+                            </a>
+                        {% endif %}
+                        
+                        <span class="px-3 py-1 bg-blue-500 text-white rounded">
+                            {{ page_obj.number }}
+                        </span>
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if current_filters.content_type %}&content_type={{ current_filters.content_type }}{% endif %}{% if current_filters.platform %}&platform={{ current_filters.platform }}{% endif %}{% if current_filters.search %}&search={{ current_filters.search }}{% endif %}" 
+                               class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-3 py-1 rounded">
+                                Next
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="p-12 text-center">
+                <div class="text-6xl mb-4">📝</div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No content found</h3>
+                <p class="text-gray-500 mb-4">You haven't generated any content yet or no content matches your filters.</p>
+                <a href="{% url 'generator:dashboard' %}" 
+                   class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded inline-flex items-center">
+                    ✨ Generate Content
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Clipboard copy functionality
+function copyContent(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        showNotification('Content copied to clipboard!', 'success');
+    }, function(err) {
+        showNotification('Failed to copy content', 'error');
+    });
+}
+
+// Toggle favorite functionality
+function toggleFavorite(contentId) {
+    fetch(`/generator/api/favorite/${contentId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload(); // Simple reload to update the heart icon
+        } else {
+            showNotification('Failed to update favorite status', 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Failed to update favorite status', 'error');
+    });
+}
+
+// Select all functionality
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.content-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+    
+    updateSelectedCount();
+}
+
+// Update selected count
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.content-checkbox:checked');
+    const count = checkboxes.length;
+    document.getElementById('selectedCount').textContent = `${count} selected`;
+    
+    // Update select all checkbox
+    const selectAll = document.getElementById('selectAll');
+    const allCheckboxes = document.querySelectorAll('.content-checkbox');
+    selectAll.checked = count === allCheckboxes.length && count > 0;
+    selectAll.indeterminate = count > 0 && count < allCheckboxes.length;
+}
+
+// Export selected content
+function exportSelected() {
+    const selected = Array.from(document.querySelectorAll('.content-checkbox:checked')).map(cb => cb.value);
+    
+    if (selected.length === 0) {
+        showNotification('Please select content to export', 'warning');
+        return;
+    }
+    
+    const format = prompt('Choose export format: csv, json, or txt', 'txt');
+    if (!format || !['csv', 'json', 'txt'].includes(format.toLowerCase())) {
+        showNotification('Invalid format. Please choose csv, json, or txt', 'error');
+        return;
+    }
+    
+    const url = `/generator/api/export-bulk/?ids=${selected.join(',')}&format=${format.toLowerCase()}`;
+    window.open(url, '_blank');
+}
+
+// Copy all selected content
+function copyAllSelected() {
+    const selected = Array.from(document.querySelectorAll('.content-checkbox:checked'));
+    
+    if (selected.length === 0) {
+        showNotification('Please select content to copy', 'warning');
+        return;
+    }
+    
+    let allContent = '';
+    selected.forEach((checkbox, index) => {
+        const contentDiv = checkbox.closest('div').querySelector('p');
+        if (contentDiv) {
+            allContent += `Content ${index + 1}:\n${contentDiv.textContent.trim()}\n\n`;
+        }
+    });
+    
+    if (allContent) {
+        navigator.clipboard.writeText(allContent).then(function() {
+            showNotification(`Copied ${selected.length} items to clipboard!`, 'success');
+        }, function(err) {
+            showNotification('Failed to copy content', 'error');
+        });
+    }
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 transform transition-transform duration-300 translate-x-full`;
+    notification.style.backgroundColor = type === 'success' ? '#10B981' : 
+        type === 'error' ? '#EF4444' : 
+        type === 'warning' ? '#F59E0B' :
+        '#3B82F6';
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Animate out and remove
+    setTimeout(() => {
+        notification.style.transform = 'translateX(full)';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    updateSelectedCount();
+});
+</script>
+{% endblock %}

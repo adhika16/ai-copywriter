@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div class="mb-4 sm:mb-0">
+                    <h1 class="text-3xl font-bold text-gray-900">Generator Social Media</h1>
+                    <p class="text-gray-600 mt-2">Buat caption yang engaging untuk Instagram, Facebook, TikTok, dan Twitter</p>
+                </div>
+                <a href="{% url 'generator:dashboard' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Kembali
+                </a>
+            </div>
+        </div>
+
+        <!-- Generator Form -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <form method="post" id="social-media-form">
+                {% csrf_token %}
+                
+                <!-- Product Information -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Informasi Produk</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="product_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                Nama Produk *
+                            </label>
+                            <input type="text" id="product_name" name="product_name" 
+                                   value="{{ form_data.product_name|default:'' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                                   placeholder="Contoh: Kopi Arabica Aceh Premium" required>
+                        </div>
+                        
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                                Kategori *
+                            </label>
+                            <select id="category" name="category" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500" required>
+                                <option value="">Pilih Kategori</option>
+                                <option value="fashion" {% if form_data.category == 'fashion' %}selected{% endif %}>Fashion</option>
+                                <option value="kerajinan" {% if form_data.category == 'kerajinan' %}selected{% endif %}>Kerajinan Tangan</option>
+                                <option value="makanan" {% if form_data.category == 'makanan' %}selected{% endif %}>Makanan & Minuman</option>
+                                <option value="seni" {% if form_data.category == 'seni' %}selected{% endif %}>Seni & Lukisan</option>
+                                <option value="furniture" {% if form_data.category == 'furniture' %}selected{% endif %}>Furniture</option>
+                                <option value="aksesoris" {% if form_data.category == 'aksesoris' %}selected{% endif %}>Aksesoris</option>
+                                <option value="teknologi" {% if form_data.category == 'teknologi' %}selected{% endif %}>Teknologi</option>
+                                <option value="lainnya" {% if form_data.category == 'lainnya' %}selected{% endif %}>Lainnya</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
+                                Harga
+                            </label>
+                            <input type="text" id="price" name="price" 
+                                   value="{{ form_data.price|default:'' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                                   placeholder="Contoh: Rp 89.000">
+                        </div>
+                        
+                        <div>
+                            <label for="platform" class="block text-sm font-medium text-gray-700 mb-2">
+                                Platform *
+                            </label>
+                            <select id="platform" name="platform" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                                <option value="instagram" {% if form_data.platform == 'instagram' %}selected{% endif %}>� Instagram</option>
+                                <option value="facebook" {% if form_data.platform == 'facebook' %}selected{% endif %}>👍 Facebook</option>
+                                <option value="tiktok" {% if form_data.platform == 'tiktok' %}selected{% endif %}>🎵 TikTok</option>
+                                <option value="twitter" {% if form_data.platform == 'twitter' %}selected{% endif %}>🐦 Twitter</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                            Deskripsi Produk *
+                        </label>
+                        <textarea id="description" name="description" rows="3" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                  placeholder="Jelaskan produk Anda secara singkat..." required>{{ form_data.description|default:'' }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Generation Settings -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Pengaturan Caption</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="length" class="block text-sm font-medium text-gray-700 mb-2">
+                                Panjang Caption
+                            </label>
+                            <select id="length" name="length" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="short" {% if form_data.length == 'short' %}selected{% endif %}>Pendek (20-50 kata)</option>
+                                <option value="medium" {% if form_data.length == 'medium' %}selected{% endif %}>Sedang (50-100 kata)</option>
+                                <option value="long" {% if form_data.length == 'long' %}selected{% endif %}>Panjang (100-150 kata)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="variations" class="block text-sm font-medium text-gray-700 mb-2">
+                                Jumlah Variasi
+                            </label>
+                            <select id="variations" name="variations" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="1" {% if form_data.variations == '1' %}selected{% endif %}>1 Caption</option>
+                                <option value="2" {% if form_data.variations == '2' %}selected{% endif %}>2 Caption</option>
+                                <option value="3" {% if form_data.variations == '3' %}selected{% endif %}>3 Caption</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="model_type" class="block text-sm font-medium text-gray-700 mb-2">
+                                AI Model
+                            </label>
+                            <select id="model_type" name="model_type" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="fast" {% if form_data.model_type == 'fast' %}selected{% endif %}>⚡ Fast (Cepat & Hemat)</option>
+                                <option value="quality" {% if form_data.model_type == 'quality' %}selected{% endif %}>✨ Quality (Kualitas Tinggi)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Platform-specific Tips -->
+                <div class="mb-8">
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4" id="platform-tips">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700">
+                                    <strong>Tips untuk Instagram:</strong> 
+                                    Gunakan emoji yang menarik, sertakan hashtag yang relevan, dan buat hook yang kuat di awal caption.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generate Button -->
+                <div class="mt-8 text-center">
+                    <button type="submit" id="generate-btn" 
+                            class="w-full sm:w-auto inline-flex items-center justify-center bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg text-lg font-medium transition duration-200 disabled:bg-green-300">
+                        <i data-lucide="sparkles" class="w-5 h-5 mr-2"></i>
+                        <span id="generate-btn-text">Generate Caption</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Platform-specific tips
+const platformTips = {
+    instagram: {
+        icon: '📸',
+        tip: 'Gunakan emoji yang menarik, sertakan hashtag yang relevan, dan buat hook yang kuat di awal caption.'
+    },
+    facebook: {
+        icon: '👍',
+        tip: 'Fokus pada storytelling, gunakan pertanyaan untuk mendorong engagement, dan sertakan call-to-action yang jelas.'
+    },
+    tiktok: {
+        icon: '🎵',
+        tip: 'Buat caption yang catchy dan trending, gunakan hashtag viral, dan sertakan challenge atau trend terkini.'
+    },
+    twitter: {
+        icon: '🐦',
+        tip: 'Buat pesan yang singkat dan impactful, gunakan thread jika perlu, dan sertakan mention atau hashtag strategis.'
+    }
+};
+
+document.getElementById('platform').addEventListener('change', function() {
+    const platform = this.value;
+    const tipsDiv = document.getElementById('platform-tips');
+    const platformData = platformTips[platform];
+    
+    if (platformData) {
+        tipsDiv.innerHTML = `
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        <strong>Tips untuk ${platform.charAt(0).toUpperCase() + platform.slice(1)}:</strong> 
+                        ${platformData.tip}
+                    </p>
+                </div>
+            </div>
+        `;
+    }
+});
+
+document.getElementById('social-media-form').addEventListener('submit', function(e) {
+    const btn = document.getElementById('generate-btn');
+    const icon = btn.querySelector('i');
+    const textSpan = document.getElementById('generate-btn-text');
+
+    btn.disabled = true;
+    textSpan.textContent = 'Generating...';
+
+    const loaderIcon = document.createElement('i');
+    loaderIcon.setAttribute('data-lucide', 'loader-2');
+    loaderIcon.classList.add('w-5', 'h-5', 'mr-2', 'animate-spin');
+
+    icon.replaceWith(loaderIcon);
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

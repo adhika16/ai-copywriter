@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Content Details - {{ content.request.product_name }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4">
+                <div class="mb-4 sm:mb-0">
+                    <h1 class="text-3xl font-bold text-gray-900">{{ content.request.product_name }}</h1>
+                    <p class="text-gray-600 mt-2">{{ content.request.category.name }} • {{ content.request.content_type.name|title }}</p>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 w-full sm:w-auto">
+                    <button onclick="copyFullContent()" class="w-full sm:w-auto inline-flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
+                        Copy Content
+                    </button>
+                    <a href="{% url 'generator:history' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                        Back to History
+                    </a>
+                </div>
+            </div>
+            
+            <div class="text-sm text-gray-500">
+                Created: {{ content.created_at|date:"F d, Y H:i" }}
+                {% if content.is_favorite %}
+                    <span class="ml-4 inline-flex items-center text-yellow-500">
+                        <i data-lucide="star" class="w-4 h-4 mr-1 fill-current"></i> Favorite
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Content Display -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Generated Content</h2>
+                <div class="bg-gray-50 p-4 rounded-md border-2 border-dashed border-gray-300 relative">
+                    <div id="content-text" class="whitespace-pre-wrap font-mono text-sm leading-relaxed">{{ content.generated_text }}</div>
+                    <button onclick="copyFullContent()" 
+                            class="absolute top-2 right-2 bg-white hover:bg-gray-100 text-gray-600 px-3 py-1 rounded text-xs border">
+                        📋 Copy
+                    </button>
+                </div>
+            </div>
+
+            {% if content.edited_text %}
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Edited Content</h2>
+                <div class="bg-blue-50 p-4 rounded-md border-2 border-dashed border-blue-300 relative">
+                    <div id="edited-content-text" class="whitespace-pre-wrap font-mono text-sm leading-relaxed">{{ content.edited_text }}</div>
+                    <button onclick="copyEditedContent()" 
+                            class="absolute top-2 right-2 bg-white hover:bg-gray-100 text-gray-600 px-3 py-1 rounded text-xs border">
+                        📋 Copy
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="flex flex-wrap gap-4 pt-6 border-t">
+                <button onclick="copyForInstagram()" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg text-sm">
+                    📱 Copy for Instagram
+                </button>
+                <button onclick="copyForFacebook()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                    📘 Copy for Facebook
+                </button>
+                <button onclick="copyForEmail()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm">
+                    📧 Copy for Email
+                </button>
+                <a href="/generator/api/export/{{ content.id }}/txt/" target="_blank" 
+                   class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                    📄 Download as TXT
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyFullContent() {
+    const content = document.getElementById('content-text').textContent;
+    copyToClipboard(content, 'Full content copied!');
+}
+
+function copyEditedContent() {
+    const content = document.getElementById('edited-content-text').textContent;
+    copyToClipboard(content, 'Edited content copied!');
+}
+
+function copyForInstagram() {
+    const content = document.getElementById('content-text').textContent;
+    const formatted = content.substring(0, 2200) + (content.length > 2200 ? '...' : ''); // Instagram limit
+    copyToClipboard(formatted, 'Content copied for Instagram!');
+}
+
+function copyForFacebook() {
+    const content = document.getElementById('content-text').textContent;
+    copyToClipboard(content, 'Content copied for Facebook!');
+}
+
+function copyForEmail() {
+    const content = document.getElementById('content-text').textContent;
+    const productName = '{{ content.request.product_name|escapejs }}';
+    const formatted = `Subject: ${productName}\n\n${content}`;
+    copyToClipboard(formatted, 'Content copied for Email!');
+}
+
+function copyToClipboard(text, message) {
+    navigator.clipboard.writeText(text).then(function() {
+        showNotification(message, 'success');
+    }).catch(function(err) {
+        showNotification('Failed to copy content', 'error');
+    });
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 2000);
+}
+</script>
+{% endblock %}
