@@ -18,6 +18,23 @@ from utils.bedrock_client import BedrockClientError
 logger = logging.getLogger(__name__)
 
 
+def _map_tone_to_english(tone: str) -> str:
+    """Map Indonesian tone values to English keys for validation"""
+    tone_mapping = {
+        'profesional': 'professional',
+        'kasual': 'casual', 
+        'energik': 'energetic',
+        'mewah': 'luxury',
+        'ramah': 'friendly',
+        'inspiratif': 'modern',     # Map inspiratif to modern as closest match
+        'playful': 'friendly',      # Map playful to friendly as closest match  
+        'edukatif': 'traditional'   # Map edukatif to traditional as closest match
+    }
+    
+    # Convert tone to English if it's in Indonesian
+    return tone_mapping.get(tone, tone)
+
+
 @login_required
 def generator_dashboard(request):
     """Main generator dashboard"""
@@ -294,6 +311,8 @@ def headline_generator(request):
             character_limit = int(character_limit)
         
         tone = data.get('tone', 'profesional')
+        tone = _map_tone_to_english(tone)  # Convert Indonesian tone to English
+        
         variations = int(data.get('variations', 5))
         model_type = data.get('model_type', 'quality')
         additional_instructions = data.get('additional_instructions', '')
@@ -301,8 +320,22 @@ def headline_generator(request):
         # Generate content for each headline type
         service = ContentGenerationService()
         all_results = []
+        total_variations = int(data.get('variations', 5))
         
-        for headline_type in headline_types:
+        # Calculate variations per headline type
+        num_types = len(headline_types)
+        variations_per_type = max(1, total_variations // num_types)
+        remaining_variations = total_variations % num_types
+        
+        total_cost = 0.0
+        total_time = 0.0
+        
+        for i, headline_type in enumerate(headline_types):
+            # Distribute remaining variations to first few types
+            current_variations = variations_per_type
+            if i < remaining_variations:
+                current_variations += 1
+            
             result = service.generate_marketing_headline(
                 product_info=product_info,
                 headline_type=headline_type,
@@ -310,7 +343,7 @@ def headline_generator(request):
                 character_limit=character_limit,
                 tone=tone,
                 model_type=model_type,
-                variations=variations,
+                variations=current_variations,
                 additional_instructions=additional_instructions
             )
             
@@ -318,7 +351,11 @@ def headline_generator(request):
                 # Add headline type to each content item
                 for content_item in result['content']:
                     content_item['headline_type'] = headline_type
+                    content_item['text'] = content_item.get('headline_text', content_item.get('text', ''))
+                
                 all_results.extend(result['content'])
+                total_cost += sum(float(item.get('estimated_cost', 0)) for item in result['content'])
+                total_time += sum(float(item.get('response_time', 0)) for item in result['content'])
         
         if all_results:
             # Combine all results
@@ -330,47 +367,63 @@ def headline_generator(request):
                     'usage_context': usage_context,
                     'character_limit': character_limit,
                     'tone': tone,
-                    'variations': variations,
+                    'variations': total_variations,
                     'model_type': model_type
                 },
-                'total_cost': sum(float(item.get('estimated_cost', 0)) for item in all_results),
-                'total_time': sum(float(item.get('response_time', 0)) for item in all_results)
+                'total_cost': total_cost,
+                'total_time': total_time
             }
             
             if request.content_type == 'application/json':
                 return JsonResponse(final_result)
             else:
-                # Auto-save generated content to database
+                # Save as a single database record with all headlines combined
                 try:
-                    for content_item in all_results:
-                        content_data = {
-                            'content': content_item['text'],
-                            'content_type': 'marketing_headline',
-                            'product_name': product_info.get('name', 'Unknown Product'),
-                            'platform': usage_context,
-                            'category': product_info.get('category', 'general'),
-                            'request_data': {
-                                'product_info': product_info,
-                                'generation_parameters': final_result['parameters'],
-                                'headline_type': content_item.get('headline_type', 'general')
-                            },
-                            'parameters': final_result['parameters'],
-                            'estimated_cost': content_item.get('estimated_cost', 0.0),
-                            'tokens_used': content_item.get('generated_tokens', 0),
-                            'prompt_used': '',  # Individual prompts not stored at this level
-                            'model_type': content_item.get('model_type', model_type),
-                            'response_time': content_item.get('response_time', 0.0)
-                        }
-                        
-                        ContentStorageService.save_generated_content(
-                            user=request.user,
-                            content_data=content_data
-                        )
+                    # Combine all headlines into a single content string
+                    combined_headlines = []
+                    for i, content_item in enumerate(all_results, 1):
+                        headline_type = content_item.get('headline_type', 'general')
+                        headline_text = content_item.get('text', '')
+                        combined_headlines.append(f"{i}. [{headline_type.replace('_', ' ').title()}] {headline_text}")
                     
-                    logger.info(f"Auto-saved {len(all_results)} headline content(s) for user {request.user.id}")
+                    combined_content = '\n\n'.join(combined_headlines)
+                    
+                    content_data = {
+                        'content': combined_content,
+                        'content_type': 'marketing_headline',
+                        'product_name': product_info.get('name', 'Unknown Product'),
+                        'platform': usage_context,
+                        'category': product_info.get('category', 'general'),
+                        'request_data': {
+                            'product_info': product_info,
+                            'generation_parameters': final_result['parameters'],
+                            'headline_types': headline_types,
+                            'individual_headlines': [
+                                {
+                                    'text': item.get('text', ''),
+                                    'type': item.get('headline_type', 'general'),
+                                    'cost': item.get('estimated_cost', 0.0),
+                                    'tokens': item.get('generated_tokens', 0)
+                                } for item in all_results
+                            ]
+                        },
+                        'parameters': final_result['parameters'],
+                        'estimated_cost': total_cost,
+                        'tokens_used': sum(item.get('generated_tokens', 0) for item in all_results),
+                        'prompt_used': f"Generated {len(all_results)} headlines for types: {', '.join(headline_types)}",
+                        'model_type': model_type,
+                        'response_time': total_time
+                    }
+                    
+                    ContentStorageService.save_generated_content(
+                        user=request.user,
+                        content_data=content_data
+                    )
+                    
+                    logger.info(f"Saved 1 record with {len(all_results)} headlines for user {request.user.id}")
                     
                 except Exception as save_error:
-                    logger.error(f"Failed to auto-save headline content: {save_error}")
+                    logger.error(f"Failed to save headline content: {save_error}")
                     # Don't fail the request if save fails, just log it
                 
                 messages.success(request, f'{len(all_results)} headlines generated and saved successfully!')
@@ -560,7 +613,7 @@ def api_generate_content(request):
                 headline_type=data.get('headline_type', 'attention_grabbing'),
                 usage_context=data.get('usage_context', 'website'),
                 character_limit=data.get('character_limit'),
-                tone=data.get('tone', 'profesional'),
+                tone=_map_tone_to_english(data.get('tone', 'profesional')),
                 model_type=data.get('model_type', 'quality'),
                 variations=data.get('variations', 5),
                 additional_instructions=data.get('additional_instructions', '')

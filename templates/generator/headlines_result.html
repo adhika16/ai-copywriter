@@ -156,20 +156,22 @@
                 <!-- Action Buttons -->
                 <div class="flex flex-col space-y-2 ml-4">
                     <button onclick="copyHeadline('headline-{{ forloop.counter }}')" 
-                            class="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded text-sm hover:bg-gray-100">
+                            class="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded text-sm hover:bg-gray-100 transition-colors">
                         <i data-lucide="copy" class="w-4 h-4 mr-1"></i>Copy
                     </button>
-                    <button onclick="saveHeadline('{{ content.text|escapejs }}', '{{ content.headline_type|default:general }}')" 
-                            class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm">
+                    <button onclick="saveHeadline('{{ content.text|escapejs }}', '{{ content.headline_type|default:"general" }}')" 
+                            class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm transition-colors">
                         <i data-lucide="save" class="w-4 h-4 mr-1 text-orange-100"></i>Save
                     </button>
                     <button onclick="analyzeHeadline('{{ content.text|escapejs }}')" 
-                            class="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded text-sm hover:bg-gray-100">
+                            class="bg-gray-200 text-gray-500 px-3 py-1 rounded text-sm cursor-not-allowed" disabled>
                         <i data-lucide="bar-chart-2" class="w-4 h-4 mr-1"></i>Analyze
+                        <span class="text-xs block">Coming Soon</span>
                     </button>
                     <button onclick="testVariations('{{ content.text|escapejs }}')" 
-                            class="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded text-sm hover:bg-gray-100">
+                            class="bg-gray-200 text-gray-500 px-3 py-1 rounded text-sm cursor-not-allowed" disabled>
                         <i data-lucide="shuffle" class="w-4 h-4 mr-1"></i>A/B Test
+                        <span class="text-xs block">Coming Soon</span>
                     </button>
                 </div>
             </div>
@@ -184,32 +186,46 @@
         </div>
         {% endfor %}
 
-        <!-- Analysis Results (Hidden initially) -->
+        <!-- Analysis Results (Coming Soon) -->
         <div id="analysis-results" class="hidden bg-white border border-gray-100 rounded-lg p-6 mb-6">
-            <h3 class="text-base font-semibold text-gray-800 mb-4">Headline Analysis</h3>
-            <div id="analysis-content"></div>
+            <h3 class="text-base font-semibold text-gray-800 mb-4">
+                Headline Analysis 
+                <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">Coming Soon</span>
+            </h3>
+            <div id="analysis-content">
+                <p class="text-gray-600">Advanced headline analysis features will be available in the next version, including:</p>
+                <ul class="mt-3 space-y-2 text-sm text-gray-600">
+                    <li>• Detailed power word analysis</li>
+                    <li>• Emotional impact scoring</li>
+                    <li>• Platform-specific optimization suggestions</li>
+                    <li>• Readability and engagement metrics</li>
+                </ul>
+            </div>
         </div>
 
         <!-- A/B Test Suggestions -->
         <div class="bg-white border border-gray-100 rounded-lg p-6 mb-6">
-            <h3 class="text-base font-semibold text-gray-800 mb-4">A/B Testing Recommendations</h3>
+            <h3 class="text-base font-semibold text-gray-800 mb-4">
+                A/B Testing Recommendations 
+                <span class="text-sm bg-orange-100 text-orange-800 px-2 py-1 rounded-full ml-2">Coming Soon</span>
+            </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <h4 class="font-medium text-gray-700 mb-3">Test Different Approaches:</h4>
+                    <h4 class="font-medium text-gray-700 mb-3">Planned Testing Features:</h4>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li>• Compare benefit-focused vs. curiosity-driven headlines</li>
-                        <li>• Test headlines with numbers vs. without numbers</li>
-                        <li>• Try emotional vs. logical appeals</li>
-                        <li>• Compare short vs. longer headlines</li>
+                        <li>• Automated A/B test generation for different headline styles</li>
+                        <li>• Performance analytics and click-through rate tracking</li>
+                        <li>• Smart recommendations based on your industry</li>
+                        <li>• Statistical significance calculator</li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-medium text-gray-700 mb-3">Testing Metrics to Track:</h4>
+                    <h4 class="font-medium text-gray-700 mb-3">Manual Testing Tips (For Now):</h4>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li>• Click-through rate (CTR)</li>
-                        <li>• Conversion rate</li>
-                        <li>• Engagement rate (likes, shares, comments)</li>
-                        <li>• Time spent on page</li>
+                        <li>• Test different headline types from your generated results</li>
+                        <li>• Try headlines with vs. without numbers</li>
+                        <li>• Compare emotional vs. logical appeals</li>
+                        <li>• Test shorter vs. longer versions</li>
                     </ul>
                 </div>
             </div>
@@ -378,105 +394,26 @@ async function saveHeadline(content, type) {
     }
 }
 
-// Analyze headline
+// Analyze headline - Coming Soon
 async function analyzeHeadline(content) {
-    try {
-        const response = await fetch('{% url "generator:analyze_content" %}', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                content: content,
-                content_type: 'marketing_headline'
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            displayHeadlineAnalysis(result.analysis);
-        } else {
-            showNotification('❌ Analysis failed: ' + result.error, 'error');
-        }
-    } catch (error) {
-        showNotification('❌ Analysis error: ' + error.message, 'error');
-    }
+    showNotification('🔍 Advanced headline analysis feature coming soon!', 'info');
 }
 
-// Display headline analysis
+// Display headline analysis - Coming Soon
 function displayHeadlineAnalysis(analysis) {
-    const analysisDiv = document.getElementById('analysis-results');
-    const contentDiv = document.getElementById('analysis-content');
-    
-    contentDiv.innerHTML = `
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-blue-50 p-3 rounded">
-                <div class="text-sm text-gray-600">Word Count</div>
-                <div class="text-lg font-bold text-blue-600">${analysis.word_count}</div>
-            </div>
-            <div class="bg-green-50 p-3 rounded">
-                <div class="text-sm text-gray-600">Characters</div>
-                <div class="text-lg font-bold text-green-600">${analysis.character_count}</div>
-            </div>
-            <div class="bg-yellow-50 p-3 rounded">
-                <div class="text-sm text-gray-600">Power Score</div>
-                <div class="text-lg font-bold text-yellow-600">${analysis.power_score}/10</div>
-            </div>
-            <div class="bg-purple-50 p-3 rounded">
-                <div class="text-sm text-gray-600">Emotional Impact</div>
-                <div class="text-lg font-bold text-purple-600">${analysis.emotional_impact}</div>
-            </div>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-gray-50 p-4 rounded">
-                <h4 class="font-medium text-gray-800 mb-2">Strengths:</h4>
-                <ul class="text-sm text-gray-600">
-                    ${analysis.strengths.map(strength => `<li>• ${strength}</li>`).join('')}
-                </ul>
-            </div>
-            <div class="bg-orange-50 p-4 rounded">
-                <h4 class="font-medium text-orange-800 mb-2">Improvement Suggestions:</h4>
-                <ul class="text-sm text-orange-700">
-                    ${analysis.suggestions.map(suggestion => `<li>• ${suggestion}</li>`).join('')}
-                </ul>
-            </div>
-        </div>
-    `;
-    
-    analysisDiv.classList.remove('hidden');
-    analysisDiv.scrollIntoView({ behavior: 'smooth' });
+    // Feature disabled for MVP
+    showNotification('📊 Detailed analysis will be available in the next version!', 'info');
 }
 
-// Test variations
+// Test variations - Coming Soon
 async function testVariations(baseHeadline) {
-    showNotification('🧪 Generating A/B test variations...', 'info');
-    
-    try {
-        const response = await fetch('{% url "generator:generate_ab_test" %}', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                base_headline: baseHeadline,
-                test_types: ['short_vs_long', 'emotional_vs_logical', 'with_numbers_vs_without']
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            displayABTestResults(result.variations);
-        } else {
-            showNotification('❌ Failed to generate variations: ' + result.error, 'error');
-        }
-    } catch (error) {
-        showNotification('❌ Error generating variations: ' + error.message, 'error');
-    }
+    showNotification('🧪 A/B testing variations feature coming soon!', 'info');
+}
+
+// Display A/B test results - Coming Soon
+function displayABTestResults(variations) {
+    // Feature disabled for MVP
+    showNotification('📈 A/B test results will be available in the next version!', 'info');
 }
 
 // Filter and sort functions

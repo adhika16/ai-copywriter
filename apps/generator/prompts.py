@@ -165,6 +165,7 @@ Pastikan caption mendorong interaksi dan mendukung ekonomi kreatif Indonesia!
                          usage_context: str = "website",
                          character_limit: Optional[int] = None,
                          tone: str = "profesional",
+                         variations: int = 5,
                          additional_instructions: str = "") -> str:
         """Generate marketing headline prompt with advanced options"""
         
@@ -217,8 +218,11 @@ Pastikan caption mendorong interaksi dan mendukung ekonomi kreatif Indonesia!
         character_limit_text = f"\n- Batasan karakter: MAKSIMAL {character_limit} karakter" if character_limit else ""
         additional_text = f"\n\nINSTRUKSI TAMBAHAN:\n{additional_instructions}" if additional_instructions else ""
         
+        # Generate dynamic output format based on variations
+        output_format = "\n".join([f"{i}. [Headline {i}]" for i in range(1, variations + 1)])
+        
         return f"""
-Buatkan 5 headline marketing yang powerful untuk produk ekonomi kreatif Indonesia:
+Buatkan {variations} headline marketing yang powerful untuk produk ekonomi kreatif Indonesia:
 
 INFORMASI PRODUK:
 - Nama Produk: {name}
@@ -246,14 +250,11 @@ GUIDELINES:
 - Sesuaikan dengan karakteristik platform/media yang digunakan
 - Fokus pada benefit, bukan hanya fitur
 - Gunakan angka atau statistik jika relevan
+- Pastikan setiap headline berbeda satu sama lain
 
 FORMAT OUTPUT:
-Berikan 5 headline yang berbeda, masing-masing dalam baris terpisah:
-1. [Headline 1]
-2. [Headline 2]
-3. [Headline 3]
-4. [Headline 4]
-5. [Headline 5]{additional_text}
+Berikan {variations} headline yang berbeda, masing-masing dalam baris terpisah:
+{output_format}{additional_text}
 
 Buat headline yang benar-benar akan membuat target audience ingin tahu lebih tentang produk ini!
 """

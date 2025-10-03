@@ -243,78 +243,69 @@ class ContentGenerationService:
                 usage_context=usage_context,
                 character_limit=character_limit,
                 tone=tone,
+                variations=variations,
                 additional_instructions=additional_instructions
             )
             
-            logger.info(f"Generating {headline_type} headlines for {cleaned_info['name']} ({usage_context})")
+            logger.info(f"Generating {variations} {headline_type} headlines for {cleaned_info['name']} ({usage_context})")
             
-            if variations == 1:
-                result = self.bedrock_client.generate_content(
-                    prompt=prompt,
-                    model_type=model_type,
-                    max_tokens=500,  # Allow more tokens for multiple headlines
-                    use_cache=True
-                )
-                
-                result['estimated_cost'] = self._calculate_cost(
-                    prompt_tokens=result['prompt_tokens'],
-                    generated_tokens=result['generated_tokens'],
-                    model_type=model_type
-                )
-                
-                # Parse multiple headlines from the result
-                headlines = self._parse_headlines(result['text'])
-                
-                return {
-                    'success': True,
-                    'content': [result],
-                    'headlines': headlines,
-                    'prompt_used': prompt,
-                    'parameters': {
-                        'headline_type': headline_type,
-                        'usage_context': usage_context,
-                        'character_limit': character_limit,
-                        'tone': tone,
-                        'model_type': model_type,
-                        'variations': variations
-                    }
+            # Always generate as a single request with the specified number of variations
+            result = self.bedrock_client.generate_content(
+                prompt=prompt,
+                model_type=model_type,
+                max_tokens=max(500, variations * 100),  # Scale tokens based on variations needed
+                use_cache=True
+            )
+            
+            result['estimated_cost'] = self._calculate_cost(
+                prompt_tokens=result['prompt_tokens'],
+                generated_tokens=result['generated_tokens'],
+                model_type=model_type
+            )
+            
+            # Parse individual headlines from the result
+            headlines = self._parse_headlines(result['text'])
+            
+            # Ensure we have at least the requested number of headlines
+            if len(headlines) < variations:
+                logger.warning(f"Generated {len(headlines)} headlines but {variations} were requested")
+            
+            # Create individual content items for each headline
+            content_items = []
+            for i, headline_data in enumerate(headlines[:variations], 1):  # Limit to requested variations
+                headline_text = headline_data.get('headline', '').strip()
+                content_items.append({
+                    'text': headline_text,
+                    'headline_text': headline_text,
+                    'headline_type': headline_type,
+                    'explanation': headline_data.get('explanation', ''),
+                    'model_id': result.get('model_id', ''),
+                    'model_type': model_type,
+                    'response_time': result.get('response_time', 0) / max(len(headlines), 1),  # Distribute response time
+                    'response_time_ms': result.get('response_time_ms', 0) // max(len(headlines), 1),
+                    'prompt_tokens': result.get('prompt_tokens', 0) // max(len(headlines), 1),  # Distribute tokens
+                    'generated_tokens': result.get('generated_tokens', 0) // max(len(headlines), 1),
+                    'total_tokens': result.get('total_tokens', 0) // max(len(headlines), 1),
+                    'cached': result.get('cached', False),
+                    'attempt': result.get('attempt', 1),
+                    'variation_number': i,
+                    'estimated_cost': result['estimated_cost'] / max(len(headlines), 1)  # Distribute cost
+                })
+            
+            return {
+                'success': True,
+                'content': content_items,
+                'headlines': [item['text'] for item in content_items],
+                'prompt_used': prompt,
+                'parameters': {
+                    'headline_type': headline_type,
+                    'usage_context': usage_context,
+                    'character_limit': character_limit,
+                    'tone': tone,
+                    'model_type': model_type,
+                    'variations': variations
                 }
-            else:
-                results = self.bedrock_client.generate_multiple_variations(
-                    prompt=prompt,
-                    variations=variations,
-                    model_type=model_type
-                )
-                
-                all_headlines = []
-                for result in results:
-                    result['estimated_cost'] = self._calculate_cost(
-                        prompt_tokens=result['prompt_tokens'],
-                        generated_tokens=result['generated_tokens'],
-                        model_type=model_type
-                    )
-                    
-                    # Parse headlines from each result
-                    headlines = self._parse_headlines(result['text'])
-                    all_headlines.extend(headlines)
-                    
-                    # For variation results, treat each as a single headline
-                    result['headline_text'] = result['text'].strip()
-                
-                return {
-                    'success': True,
-                    'content': results,
-                    'headlines': all_headlines,
-                    'prompt_used': prompt,
-                    'parameters': {
-                        'headline_type': headline_type,
-                        'usage_context': usage_context,
-                        'character_limit': character_limit,
-                        'tone': tone,
-                        'model_type': model_type,
-                        'variations': variations
-                    }
-                }
+            }
             
         except (BedrockClientError, ValueError) as e:
             logger.error(f"Marketing headline generation failed: {e}")

@@ -359,22 +359,29 @@
 </div>
 
 <script>
+let isSubmitting = false;
+
 document.getElementById('headlineForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+    // Prevent multiple submissions
+    if (isSubmitting) {
+        e.preventDefault();
+        return;
+    }
     
     // Validate at least one headline type is selected
     const checkedTypes = document.querySelectorAll('input[name="headline_types"]:checked');
     if (checkedTypes.length === 0) {
+        e.preventDefault();
         alert('Pilih minimal satu jenis headline!');
         return;
     }
     
-    // Show loading state
+    // Set submitting flag and show loading state
+    isSubmitting = true;
     document.getElementById('generateBtn').style.display = 'none';
     document.getElementById('loading').classList.remove('hidden');
     
-    // Submit form
-    this.submit();
+    // Let the form submit naturally (don't prevent default)
 });
 
 // Character limit info
