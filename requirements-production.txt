@@ -1,0 +1,23 @@
+# Production requirements for AI Copywriter
+Django==5.2.7
+django-tailwind==4.2.0
+django-widget-tweaks==1.5.0
+boto3==1.40.42
+python-decouple==3.8
+
+# Production-specific packages
+gunicorn==21.2.0
+psycopg2-binary==2.9.7
+whitenoise==6.6.0
+django-cors-headers==4.3.1
+
+# Security and monitoring
+django-ratelimit==4.1.0
+django-extensions==3.2.3
+
+# Caching
+redis==5.0.1
+django-redis==5.4.0
+
+# Logging and monitoring
+sentry-sdk[django]==1.38.0
