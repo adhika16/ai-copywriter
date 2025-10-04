@@ -83,9 +83,9 @@ def generator_dashboard(request):
         # Provide default values if there's an error
         user_stats = {
             'daily_requests_used': 0,
-            'daily_request_limit': 50,
+            'daily_request_limit': 10,
             'monthly_requests_used': 0,
-            'monthly_request_limit': 1000,
+            'monthly_request_limit': 200,
             'successful_generations': 0,
             'daily_reset_time_left': '24 jam',
         }

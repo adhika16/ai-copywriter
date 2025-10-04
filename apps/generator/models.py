@@ -301,12 +301,12 @@ class UserUsageStats(models.Model):
     last_usage = models.DateTimeField(null=True, blank=True)
     
     # Monthly limits (can be used for tier management)
-    monthly_request_limit = models.IntegerField(default=1000)
+    monthly_request_limit = models.IntegerField(default=200)
     monthly_requests_used = models.IntegerField(default=0)
     current_month = models.DateField(default=timezone.now)
 
     # Daily limits
-    daily_request_limit = models.IntegerField(default=50)
+    daily_request_limit = models.IntegerField(default=10)
     daily_requests_used = models.IntegerField(default=0)
     last_daily_reset = models.DateTimeField(default=timezone.now)
     

@@ -18,7 +18,7 @@
                     <div>
                         <h3 class="text-base font-medium text-gray-600">Penggunaan Harian</h3>
                         <p class="text-2xl font-semibold text-gray-800 mt-2">
-                            {{ user_stats.daily_requests_used|default:"0" }} / {{ user_stats.daily_request_limit|default:"50" }}
+                            {{ user_stats.daily_requests_used|default:"0" }} / {{ user_stats.daily_request_limit|default:"10" }}
                         </p>
                         <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
                             {% if user_stats.daily_request_limit > 0 %}
@@ -34,7 +34,7 @@
                     <div>
                         <h3 class="text-base font-medium text-gray-600">Penggunaan Bulanan</h3>
                         <p class="text-2xl font-semibold text-gray-800 mt-2">
-                            {{ user_stats.monthly_requests_used|default:"0" }} / {{ user_stats.monthly_request_limit|default:"1000" }}
+                            {{ user_stats.monthly_requests_used|default:"0" }} / {{ user_stats.monthly_request_limit|default:"200" }}
                         </p>
                         <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
                             {% if user_stats.monthly_request_limit > 0 %}
