@@ -22,12 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-w-)0k6ge&wa4i)y&@c)7&t(z(rr+!)bmnqascf@k427aos1+2p'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-w-)0k6ge&wa4i)y&@c)7&t(z(rr+!)bmnqascf@k427aos1+2p')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
+
+# CSRF Configuration
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:8000,http://127.0.0.1:8000', cast=Csv())
 
 
 # Application definition
@@ -45,14 +48,17 @@ INSTALLED_APPS = [
     'admin_panel.apps.AdminPanelConfig',
     'tailwind',
     'theme',
-    'django_browser_reload',
     'widget_tweaks',
 ]
+
+# Add development-only apps when DEBUG is True
+if DEBUG:
+    INSTALLED_APPS.append('django_browser_reload')
 
 TAILWIND_APP_NAME = 'theme'
 
 # NPM configuration for django-tailwind
-NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
+NPM_BIN_PATH = config('NPM_BIN_PATH', default='/usr/bin/npm')
 
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -60,6 +66,7 @@ INTERNAL_IPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -67,8 +74,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'admin_panel.middleware.AIFeatureMiddleware',
-    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
+
+# Add development-only middleware when DEBUG is True
+if DEBUG:
+    MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
 
 ROOT_URLCONF = 'ai_copywriter.urls'
 
@@ -95,8 +105,12 @@ WSGI_APPLICATION = 'ai_copywriter.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': config('DB_ENGINE', default='django.db.backends.sqlite3'),
+        'NAME': config('DB_NAME', default=BASE_DIR / 'db.sqlite3'),
+        'USER': config('DB_USER', default=None),
+        'PASSWORD': config('DB_PASSWORD', default=None),
+        'HOST': config('DB_HOST', default=None),
+        'PORT': config('DB_PORT', default=None),
     }
 }
 
@@ -139,6 +153,9 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+# Add STATIC_ROOT for production (loaded from .env or default to a local path for dev)
+STATIC_ROOT = config('STATIC_ROOT', default=BASE_DIR / 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
