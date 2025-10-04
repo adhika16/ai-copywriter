@@ -17,6 +17,11 @@ python manage.py tailwind build
 echo "Collecting static files..."
 python manage.py collectstatic --no-input --clear
 
+# Debug: Check if CSS file was generated and collected
+echo "Checking if CSS file exists..."
+ls -la /app/theme/static/css/dist/ || echo "CSS dist directory not found"
+ls -la /app/staticfiles/css/dist/ || echo "Staticfiles CSS dist directory not found"
+
 # Apply database migrations
 echo "Applying database migrations..."
 python manage.py migrate
