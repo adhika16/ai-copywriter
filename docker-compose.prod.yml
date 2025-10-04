@@ -11,7 +11,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./staticfiles:/app/staticfiles  # Bind mount for Apache access
+      - static_volume:/app/staticfiles
       - media_volume:/app/media
 
   db:
@@ -28,4 +28,5 @@ services:
 
 volumes:
   postgres_data:
+  static_volume:
   media_volume:
