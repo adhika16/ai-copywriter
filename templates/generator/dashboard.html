@@ -9,27 +9,52 @@
             <p class="text-gray-500 mt-2">Buat konten marketing yang menarik untuk produk Indonesia</p>
         </div>
 
-        <!-- Quick Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white border border-gray-100 rounded-lg p-5 flex flex-col items-start">
-                <i data-lucide="file-text" class="w-6 h-6 text-gray-400 mb-2"></i>
-                <h3 class="text-base font-medium text-gray-800">Deskripsi Produk</h3>
-                <p class="text-gray-400 text-xs mt-1">Buat deskripsi menarik</p>
-            </div>
-            <div class="bg-white border border-gray-100 rounded-lg p-5 flex flex-col items-start">
-                <i data-lucide="hash" class="w-6 h-6 text-gray-400 mb-2"></i>
-                <h3 class="text-base font-medium text-gray-800">Social Media</h3>
-                <p class="text-gray-400 text-xs mt-1">Caption untuk semua platform</p>
-            </div>
-            <div class="bg-white border border-gray-100 rounded-lg p-5 flex flex-col items-start">
-                <i data-lucide="megaphone" class="w-6 h-6 text-gray-400 mb-2"></i>
-                <h3 class="text-base font-medium text-gray-800">Headlines</h3>
-                <p class="text-gray-400 text-xs mt-1">Judul yang menarik perhatian</p>
-            </div>
-            <div class="bg-white border border-gray-100 rounded-lg p-5 flex flex-col items-start">
-                <i data-lucide="zap" class="w-6 h-6 text-gray-400 mb-2"></i>
-                <h3 class="text-base font-medium text-gray-800">Quick Generator</h3>
-                <p class="text-gray-400 text-xs mt-1">Generator cepat</p>
+        <!-- Usage Stats -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Status Penggunaan</h2>
+            <div class="bg-white border border-gray-100 rounded-lg p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Daily Usage -->
+                    <div>
+                        <h3 class="text-base font-medium text-gray-600">Penggunaan Harian</h3>
+                        <p class="text-2xl font-semibold text-gray-800 mt-2">
+                            {{ user_stats.daily_requests_used|default:"0" }} / {{ user_stats.daily_request_limit|default:"50" }}
+                        </p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                            {% if user_stats.daily_request_limit > 0 %}
+                                {% widthratio user_stats.daily_requests_used|default:0 user_stats.daily_request_limit 100 as progress %}
+                                <div class="bg-orange-500 h-2.5 rounded-full" style="width: {{ progress }}%"></div>
+                            {% else %}
+                                <div class="bg-orange-500 h-2.5 rounded-full" style="width: 0%"></div>
+                            {% endif %}
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Reset dalam {{ user_stats.daily_reset_time_left|default:"24 jam" }}</p>
+                    </div>
+                    <!-- Monthly Usage -->
+                    <div>
+                        <h3 class="text-base font-medium text-gray-600">Penggunaan Bulanan</h3>
+                        <p class="text-2xl font-semibold text-gray-800 mt-2">
+                            {{ user_stats.monthly_requests_used|default:"0" }} / {{ user_stats.monthly_request_limit|default:"1000" }}
+                        </p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                            {% if user_stats.monthly_request_limit > 0 %}
+                                {% widthratio user_stats.monthly_requests_used|default:0 user_stats.monthly_request_limit 100 as monthly_progress %}
+                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: {{ monthly_progress }}%"></div>
+                            {% else %}
+                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 0%"></div>
+                            {% endif %}
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Reset pada akhir bulan</p>
+                    </div>
+                    <!-- Total Generations -->
+                    <div>
+                        <h3 class="text-base font-medium text-gray-600">Total Konten Dibuat</h3>
+                        <p class="text-2xl font-semibold text-gray-800 mt-2">
+                            {{ user_stats.successful_generations|default:"0" }}
+                        </p>
+                        <p class="text-xs text-gray-500 mt-2">Total konten yang berhasil dibuat.</p>
+                    </div>
+                </div>
             </div>
         </div>
 

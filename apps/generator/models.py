@@ -301,9 +301,14 @@ class UserUsageStats(models.Model):
     last_usage = models.DateTimeField(null=True, blank=True)
     
     # Monthly limits (can be used for tier management)
-    monthly_request_limit = models.IntegerField(default=100)
+    monthly_request_limit = models.IntegerField(default=1000)
     monthly_requests_used = models.IntegerField(default=0)
-    current_month = models.DateField(auto_now_add=True)
+    current_month = models.DateField(default=timezone.now)
+
+    # Daily limits
+    daily_request_limit = models.IntegerField(default=50)
+    daily_requests_used = models.IntegerField(default=0)
+    last_daily_reset = models.DateTimeField(default=timezone.now)
     
     class Meta:
         verbose_name = "User Usage Stats"
@@ -317,26 +322,45 @@ class UserUsageStats(models.Model):
         self.monthly_requests_used = 0
         self.current_month = timezone.now().date()
         self.save(update_fields=['monthly_requests_used', 'current_month'])
+
+    def reset_daily_usage(self):
+        """Reset daily usage counters"""
+        self.daily_requests_used = 0
+        self.last_daily_reset = timezone.now()
+        self.save(update_fields=['daily_requests_used', 'last_daily_reset'])
     
     def can_make_request(self):
-        """Check if user can make another request this month"""
-        # Reset if new month
-        current_month = timezone.now().date().replace(day=1)
-        if self.current_month < current_month:
+        """Check if user can make another request. Returns (can_request, reason)."""
+        # Check and reset daily limit
+        if (timezone.now() - self.last_daily_reset).days >= 1:
+            self.reset_daily_usage()
+
+        if self.daily_requests_used >= self.daily_request_limit:
+            return False, "daily_limit_reached"
+
+        # Check and reset monthly limit
+        current_month_start = timezone.now().date().replace(day=1)
+        if self.current_month < current_month_start:
             self.reset_monthly_usage()
         
-        return self.monthly_requests_used < self.monthly_request_limit
+        if self.monthly_requests_used >= self.monthly_request_limit:
+            return False, "monthly_limit_reached"
+            
+        return True, "ok"
     
-    def increment_request_count(self):
+    def increment_request_count(self, success=True):
         """Increment request counters"""
         self.total_requests += 1
         self.monthly_requests_used += 1
+        self.daily_requests_used += 1
         self.last_usage = timezone.now()
         
+        if success:
+            self.successful_generations += 1
+        else:
+            self.failed_generations += 1
+
         if not self.first_usage:
-            self.first_usage = timezone.now()
+            self.first_usage = self.last_usage
         
-        self.save(update_fields=[
-            'total_requests', 'monthly_requests_used', 
-            'last_usage', 'first_usage'
-        ])
+        self.save()

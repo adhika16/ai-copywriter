@@ -97,7 +97,7 @@ class ContentStorageService:
                 }
             )
             
-            stats.successful_generations += 1
+            # Only increment content pieces (not successful_generations since that's handled in views)
             stats.total_content_pieces += 1
             
             # Convert cost to Decimal to avoid type mismatch

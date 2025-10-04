@@ -6,13 +6,16 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
 from typing import Union
+from django.utils import timezone
+from datetime import timedelta
 import json
 import logging
 
 from apps.generator.services import ContentGenerationService, ContentAnalyzer
 from apps.generator.storage import ContentStorageService
 from apps.generator.export import ContentExporter
-from apps.generator.models import GeneratedContent
+from apps.generator.models import GeneratedContent, UserUsageStats
+from apps.generator.decorators import check_user_limit
 from utils.bedrock_client import BedrockClientError
 
 logger = logging.getLogger(__name__)
@@ -38,8 +41,6 @@ def _map_tone_to_english(tone: str) -> str:
 @login_required
 def generator_dashboard(request):
     """Main generator dashboard"""
-    service = ContentGenerationService()
-    
     # Get recent content for the user
     try:
         recent_content = ContentStorageService.get_user_content_history(
@@ -50,21 +51,46 @@ def generator_dashboard(request):
         logger.error(f"Failed to get recent content for dashboard: {e}")
         recent_content = []
     
-    # Get user stats
+    # Get or create user stats
     try:
-        user_stats = ContentStorageService.get_user_stats(request.user)
+        stats_obj, created = UserUsageStats.objects.get_or_create(user=request.user)
+        
+        # Calculate daily reset time
+        reset_time = stats_obj.last_daily_reset + timedelta(days=1)
+        time_left = reset_time - timezone.now()
+        
+        # Format time left for display
+        if time_left.total_seconds() > 0:
+            hours, remainder = divmod(int(time_left.total_seconds()), 3600)
+            minutes, _ = divmod(remainder, 60)
+            daily_reset_time_left = f"{hours} jam, {minutes} menit"
+        else:
+            daily_reset_time_left = "segera"
+
+        user_stats = {
+            'daily_requests_used': stats_obj.daily_requests_used,
+            'daily_request_limit': stats_obj.daily_request_limit,
+            'monthly_requests_used': stats_obj.monthly_requests_used,
+            'monthly_request_limit': stats_obj.monthly_request_limit,
+            'successful_generations': stats_obj.successful_generations,
+            'daily_reset_time_left': daily_reset_time_left,
+        }
+        
+        logger.info(f"Dashboard user_stats for {request.user.username}: {user_stats}")
+        
     except Exception as e:
         logger.error(f"Failed to get user stats for dashboard: {e}")
+        # Provide default values if there's an error
         user_stats = {
-            'total_generations': 0,
-            'total_cost': 0.0,
-            'total_tokens': 0,
-            'content_by_type': {},
-            'recent_activity': []
+            'daily_requests_used': 0,
+            'daily_request_limit': 50,
+            'monthly_requests_used': 0,
+            'monthly_request_limit': 1000,
+            'successful_generations': 0,
+            'daily_reset_time_left': '24 jam',
         }
-    
+
     context = {
-        'usage_stats': user_stats,
         'recent_content': recent_content,
         'user_stats': user_stats,
     }
@@ -73,11 +99,15 @@ def generator_dashboard(request):
 
 
 @login_required
+@check_user_limit
 @require_http_methods(["GET", "POST"])
 def product_description_generator(request):
     """Generate product descriptions"""
     if request.method == 'GET':
         return render(request, 'generator/product_description.html')
+    
+    # Increment request count for the user
+    usage_stats, _ = UserUsageStats.objects.get_or_create(user=request.user)
     
     try:
         # Parse request data
@@ -113,6 +143,9 @@ def product_description_generator(request):
             variations=variations,
             user=request.user
         )
+        
+        # Increment usage stats on successful generation
+        usage_stats.increment_request_count(success=result['success'])
         
         if request.content_type == 'application/json':
             return JsonResponse(result)
@@ -162,6 +195,8 @@ def product_description_generator(request):
                 return render(request, 'generator/product_description.html', {'form_data': data})
     
     except Exception as e:
+        # Increment usage stats on failure
+        usage_stats.increment_request_count(success=False)
         logger.error(f"Product description generation error: {e}")
         if request.content_type == 'application/json':
             return JsonResponse({
@@ -175,12 +210,15 @@ def product_description_generator(request):
 
 
 @login_required
+@check_user_limit
 @require_http_methods(["GET", "POST"])
 def social_media_generator(request):
     """Generate social media captions"""
     if request.method == 'GET':
         return render(request, 'generator/social_media.html')
-    
+
+    usage_stats, _ = UserUsageStats.objects.get_or_create(user=request.user)
+
     try:
         # Parse request data
         if request.content_type == 'application/json':
@@ -211,6 +249,8 @@ def social_media_generator(request):
             model_type=model_type,
             variations=variations
         )
+        
+        usage_stats.increment_request_count(success=result['success'])
         
         if request.content_type == 'application/json':
             return JsonResponse(result)
@@ -260,6 +300,7 @@ def social_media_generator(request):
                 return render(request, 'generator/social_media.html', {'form_data': data})
     
     except Exception as e:
+        usage_stats.increment_request_count(success=False)
         logger.error(f"Social media generation error: {e}")
         if request.content_type == 'application/json':
             return JsonResponse({
@@ -273,11 +314,14 @@ def social_media_generator(request):
 
 
 @login_required
+@check_user_limit
 @require_http_methods(["GET", "POST"])
 def headline_generator(request):
     """Generate marketing headlines"""
     if request.method == 'GET':
         return render(request, 'generator/headlines.html')
+
+    usage_stats, _ = UserUsageStats.objects.get_or_create(user=request.user)
     
     try:
         # Parse request data
@@ -329,6 +373,7 @@ def headline_generator(request):
         
         total_cost = 0.0
         total_time = 0.0
+        any_success = False
         
         for i, headline_type in enumerate(headline_types):
             # Distribute remaining variations to first few types
@@ -348,6 +393,7 @@ def headline_generator(request):
             )
             
             if result['success']:
+                any_success = True
                 # Add headline type to each content item
                 for content_item in result['content']:
                     content_item['headline_type'] = headline_type
@@ -357,6 +403,8 @@ def headline_generator(request):
                 total_cost += sum(float(item.get('estimated_cost', 0)) for item in result['content'])
                 total_time += sum(float(item.get('response_time', 0)) for item in result['content'])
         
+        usage_stats.increment_request_count(success=any_success)
+
         if all_results:
             # Combine all results
             final_result = {
@@ -447,6 +495,7 @@ def headline_generator(request):
                 return render(request, 'generator/headlines.html', {'form_data': data})
     
     except Exception as e:
+        usage_stats.increment_request_count(success=False)
         logger.error(f"Headlines generation error: {e}")
         if request.content_type == 'application/json':
             return JsonResponse({
