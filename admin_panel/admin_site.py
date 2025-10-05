@@ -5,9 +5,9 @@ from django.http import HttpResponseRedirect
 
 
 class CustomAdminSite(admin.AdminSite):
-    site_header = "AI Copywriter Admin"
-    site_title = "AI Copywriter Admin Portal"
-    index_title = "Welcome to AI Copywriter Administration"
+    site_header = "Rocwords. Admin"
+    site_title = "Rocwords. Admin Portal"
+    index_title = "Welcome to Rocwords. Administration"
     
     def index(self, request, extra_context=None):
         """
