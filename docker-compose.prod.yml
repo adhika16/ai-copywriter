@@ -8,25 +8,16 @@ services:
       - "127.0.0.1:8000:8000"  # Only bind to localhost
     env_file:
       - .env
-    depends_on:
-      - db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - DB_HOST=host.docker.internal
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
 
-  db:
-    image: postgres:13
-    restart: unless-stopped
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-    ports:
-      - "127.0.0.1:5432:5432"  # Only bind to localhost
+# No database service since we're using host MySQL
 
 volumes:
-  postgres_data:
   static_volume:
   media_volume:
